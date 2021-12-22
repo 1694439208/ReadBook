@@ -33,7 +33,7 @@ class RandomWords extends StatefulWidget {
   static const String src_img =
       "https://bookbk.img.zhangyue01.com/idc_1/m_1,w_200,h_266/7a6e6fec/group61/M00/5E/55/CmQUOV90WHCEcMg-AAAAABv-MzM684786928.jpg";
   var BookShelf = BookConfig.GetBookGroup();
-  //var BookShelf = <Widget>[];
+  //var BookShelf = <Widget>[]; 
 
   @override
   _RandomWordsState createState() => _RandomWordsState();
