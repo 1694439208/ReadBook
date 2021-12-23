@@ -1,5 +1,4 @@
 import 'dart:developer';
-import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/BookType/Group.dart';
@@ -15,7 +14,8 @@ class BookConfig {
     preferences = await SharedPreferences.getInstance();
     return true;
   }
-  static List<dynamic> BookGroup =[];
+
+  static List<dynamic> BookGroup = [];
 
   static List<BookPage> ParseBook(List<dynamic> list) {
     var bp = <BookPage>[];
@@ -25,6 +25,7 @@ class BookConfig {
           bp.add(BTXT(
               type: item["book_type"] == "path" ? TXT.path : TXT.http,
               src: item["source"] ?? "",
+              name: item["name"] ?? "",
               chapterpage: item["chapterpage"] ?? 0,
               backimage: item["backimage"] ?? "",
               chapter_index: item["chapter_index"] ?? 0));
@@ -46,35 +47,111 @@ class BookConfig {
     }
     return bp;
   }
+  static void save(){
+    preferences.setString("BookGroup", json.encode(BookGroup));
+  }
+  //BookGroup 添加书籍
+  static void AddBookGroup(
+      String name, String Group_name, TXT type, String src) {
+    if (Group_name == "") {
+      BookGroup.add({
+        "type": "book",
+        "name": name,
+        "book_type": "path",
+        "source": src,
+        "backimage": "http://bookcover.yuewen.com/qdbimg/349573/1031728889/180",
+        "chapterpage": 0,
+        "chapter_index": 0
+      });
+    } else {
+      //如果需要创建分组的话
+      var isnewgroup = false;
+      for (var i = 0; i < BookGroup.length; i++) {
+        var bk = BookGroup[i] as Map<String, dynamic>;
+        //如果是分组
+        if (bk["type"] == "group" && bk["Group_name"] == Group_name) {
+          ((BookGroup[i] as Map<String, dynamic>)["pages"] as List<dynamic>)
+              .add({
+            "type": "book",
+            "name": name,
+            "book_type": "path",
+            "source": src,
+            "backimage":
+                "http://bookcover.yuewen.com/qdbimg/349573/1031728889/180",
+            "chapterpage": 0,
+            "chapter_index": 0
+          });
+          isnewgroup = true;
+        }
+      }
+      if (!isnewgroup) {
+        BookGroup.add({
+          "type": "group",
+          "Group_name": Group_name,
+          "pages": [
+            {
+              "type": "book",
+              "name": name,
+              "book_type": "path",
+              "source": src,
+              "backimage":
+                  "http://bookcover.yuewen.com/qdbimg/349573/1031728889/180",
+              "chapterpage": 0,
+              "chapter_index": 0
+            }
+          ]
+          /*
+          BGroup(
+          name: Group_name,
+          pages: [
+            BTXT(
+                type: type,
+                src: src,
+                name: name,
+                chapterpage: 0,
+                backimage: "",
+                chapter_index: 0)
+          ],
+        )
+           */
+        });
+      }
+    }
+    preferences.setString("BookGroup", json.encode(BookGroup));
+  }
+
   //设置阅读进度书架信息 章节和页
-  static void SetBookGroup(List<int> Index,int chapter,int page) {
+  static void SetBookGroup(List<int> Index, int chapter, int page) {
     if (Index.length == 1) {
       //只有一个就是书
       //var Temp_map = BookGroup[Index[0]];
-      (BookGroup[Index[0]] as Map<String,dynamic>)["chapterpage"] = page;
-      (BookGroup[Index[0]] as Map<String,dynamic>)["chapter_index"] = chapter;
+      (BookGroup[Index[0]] as Map<String, dynamic>)["chapterpage"] = page;
+      (BookGroup[Index[0]] as Map<String, dynamic>)["chapter_index"] = chapter;
     } else {
-      var temp_ = BookGroup[Index[0]] as Map<String,dynamic>;
+      var temp_ = BookGroup[Index[0]] as Map<String, dynamic>;
       var temp_1 = temp_["pages"] as List<dynamic>;
 
-      (temp_1[Index[1]] as Map<String,dynamic>)["chapterpage"] = page;
-      (temp_1[Index[1]] as Map<String,dynamic>)["chapter_index"] = chapter;
+      (temp_1[Index[1]] as Map<String, dynamic>)["chapterpage"] = page;
+      (temp_1[Index[1]] as Map<String, dynamic>)["chapter_index"] = chapter;
     }
     log("${page}");
-    preferences.setString("BookGroup",json.encode(BookGroup));
+    preferences.setString("BookGroup", json.encode(BookGroup));
   }
+
   //获取书架信息
   static List<BookPage> GetBookGroup() {
-    var BookGroupText =preferences.getString("BookGroup");
-    var text = BookGroupText??"""
+    var BookGroupText =  preferences.getString("BookGroup");
+    var text = BookGroupText ??
+        """
     [
       {
         "type":"book",
+        "name":"书籍名称",
         "book_type":"path",
         "source":"",
         "backimage":"http://bookcover.yuewen.com/qdbimg/349573/1031728889/180",
-        "chapterpage":1,
-        "chapter_index":1
+        "chapterpage":0,
+        "chapter_index":0
       },
       {
         "type":"image",
@@ -92,6 +169,7 @@ class BookConfig {
         "pages":[
           {
             "type":"book",
+            "name":"书籍名称",
             "book_type":"path",
             "source":"",
             "backimage":"http://bookcover.yuewen.com/qdbimg/349573/1031275083/180",
@@ -100,6 +178,7 @@ class BookConfig {
           },
           {
             "type":"book",
+            "name":"书籍名称",
             "book_type":"path",
             "source":"",
             "backimage":"http://bookcover.yuewen.com/qdbimg/349573/1031396457/180",
@@ -143,8 +222,6 @@ class BookConfig {
       return Color(color);
     }
   }
-
-
 
   //设置字体颜色
   static void SetFontColor(Color color) {

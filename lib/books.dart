@@ -3,13 +3,15 @@ import 'dart:io';
 
 import 'package:bot_toast/bot_toast.dart';
 import 'package:english_words/english_words.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_application_1/BookType/Group.dart';
 import 'package:flutter_application_1/BookType/Image.dart';
 import 'package:flutter_application_1/BookType/Txt.dart';
 import 'package:flutter_application_1/search.dart';
+import 'package:flutter_application_1/utils/Alert.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:flutter_swipe_action_cell/flutter_swipe_action_cell.dart';
 import 'package:photo_view/photo_view.dart';
 
 import 'Book/text_canvas.dart';
@@ -33,7 +35,8 @@ class RandomWords extends StatefulWidget {
   static const String src_img =
       "https://bookbk.img.zhangyue01.com/idc_1/m_1,w_200,h_266/7a6e6fec/group61/M00/5E/55/CmQUOV90WHCEcMg-AAAAABv-MzM684786928.jpg";
   var BookShelf = BookConfig.GetBookGroup();
-  //var BookShelf = <Widget>[]; 
+  //var BookShelf = <Widget>[];
+  static var index_i = 0;
 
   @override
   _RandomWordsState createState() => _RandomWordsState();
@@ -116,6 +119,73 @@ class _RandomWordsState extends State<RandomWords> {
             ),
           )),
       body: _buildSuggestions(),
+      floatingActionButton: SpeedDial(
+          buttonSize: const Size(50.0, 50.0),
+          child: Icon(Icons.add),
+          children: [
+            SpeedDialChild(
+                child: Icon(Icons.devices_other),
+                backgroundColor: Colors.red,
+                label: '本地导入',
+                labelStyle: TextStyle(fontSize: 16.0),
+                onTap: () async {
+                  BotToast.showText(text: '本地导入');
+                  FilePickerResult? result =
+                      await FilePicker.platform.pickFiles(
+                    allowMultiple: true,
+                    type: FileType.custom,
+                    allowedExtensions: ['jpg', 'pdf', 'txt'],
+                  );
+                  if (result != null) {
+                    showAlertDialog("是否导入目录信息", BackButtonBehavior.none,
+                        cancel: () {
+                      BotToast.showText(text: '不导入');
+                      for (var item in result.files) {
+                        BookConfig.AddBookGroup(
+                            item.name, "", TXT.path, item.path!);
+                      }
+                      setState(() {
+                        widget.BookShelf = BookConfig.GetBookGroup();
+                      });
+                    }, confirm: () {
+                      BotToast.showText(text: '导入');
+                      for (var item in result.files) {
+                        var path = Uri.decodeComponent(item.identifier!);
+                        var temp_list = path.split(":");
+                        temp_list = temp_list.last.split("/");
+                        //log("path:${temp_list}");
+                        BookConfig.AddBookGroup(
+                            item.name, temp_list.first, TXT.path, item.path!);
+                        //var f = File(item.path!);
+                        //var str = f.readAsStringSync();
+                        //log("str:${str}");
+                        //var a = 1;
+                      }
+                      setState(() {
+                        widget.BookShelf = BookConfig.GetBookGroup();
+                      });
+                    }, backgroundReturn: () {
+                      BotToast.showText(text: '不导入');
+                    });
+                  }
+
+                  var a = 1;
+                }),
+            SpeedDialChild(
+              child: Icon(Icons.input),
+              backgroundColor: Colors.orange,
+              label: '规则导入',
+              labelStyle: TextStyle(fontSize: 16.0),
+              onTap: () => BotToast.showText(text: '阅读规则没实现！！！'),
+            ),
+            SpeedDialChild(
+              child: Icon(Icons.keyboard_voice),
+              backgroundColor: Colors.green,
+              label: '占位符',
+              labelStyle: TextStyle(fontSize: 16.0),
+              onTap: () => BotToast.showText(text: '占位符'),
+            ),
+          ]),
     );
   }
 
@@ -158,8 +228,7 @@ class _RandomWordsState extends State<RandomWords> {
           EdgeInsets.fromLTRB(10, 10, 10, 10), //const EdgeInsets.all(16.0),
       itemBuilder: (context, i) {
         //if (i.isOdd) return const Divider(); /*2*/
-        var item =
-            _RandomWordsState.CreateView(widget.BookShelf[i], context, [i]);
+        var item = CreateView(widget.BookShelf[i], context, [i]);
         return item;
         /*final index = i ~/ 2; /*3*/
         if (index >= _suggestions.length) {
@@ -187,7 +256,7 @@ class _RandomWordsState extends State<RandomWords> {
         });*/
   }
 
-  static Widget CreateView<T>(T pair, BuildContext context, List<int> Index) {
+  Widget CreateView<T>(T pair, BuildContext context, List<int> Index) {
     Widget body = Text("data");
     log(pair.runtimeType.toString());
     if (pair is BImage) {
@@ -283,8 +352,7 @@ class _RandomWordsState extends State<RandomWords> {
       var obj_temp = pair as BGroup;
       var temp_widget = <Widget>[];
       for (var i = 0; i < obj_temp.pages.length; i++) {
-        temp_widget.add(
-            _RandomWordsState.CreateView(obj_temp.pages[i], context, [0, 0]));
+        temp_widget.add(CreateView(obj_temp.pages[i], context, [0, 0]));
       }
       body = IgnorePointer(
           child: Stack(
@@ -323,31 +391,73 @@ class _RandomWordsState extends State<RandomWords> {
         ],
       ));
     }
-
-    return InkWell(
-      onTap: () {
-        _CardClick(pair, context, Index);
-      },
-      child: Card(
-        color: Color.fromARGB(255, 239, 244, 255),
-        //z轴的高度，设置card的阴影
-        elevation: 8.0,
-        //设置shape，这里设置成了R角
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(3.0)),
+    return SwipeActionCell(
+      // Specify a key if the Slidable is dismissible.
+      key: ValueKey(++RandomWords.index_i),
+      trailingActions: [
+        SwipeAction(
+            title: "删掉",
+            widthSpace: 60,
+            onTap: (CompletionHandler handler) async {
+              showAlertDialog("是否要删除,删除后不可恢复", BackButtonBehavior.none,
+                  cancel: () {
+                BotToast.showText(text: '不删除');
+              }, confirm: () {
+                BotToast.showText(text: '删除');
+                if (Index.length == 1) {
+                  BookConfig.BookGroup.removeAt(Index[0]);
+                  widget.BookShelf.removeAt(Index[0]);
+                } else {
+                  ((BookConfig.BookGroup[Index[0]]
+                          as Map<String, dynamic>)["pages"] as List<dynamic>)
+                      .removeAt(Index[1]);
+                  (widget.BookShelf[Index[0]] as BGroup)
+                      .pages
+                      .removeAt(Index[1]);
+                }
+                BookConfig.save();
+                setState(() {});
+              }, backgroundReturn: () {
+                BotToast.showText(text: '不导入');
+              });
+            },
+            color: Colors.red),
+      ],
+      // The child of the Slidable is what the user sees when the
+      // component is not dragged.
+      child: LongPressDraggable(
+        //用户拖动item时，那个给用户看起来被拖动的widget，（就是会跟着用户走的那个widget）
+        feedback: SizedBox(
+          child: Center(
+            child: Icon(Icons.menu_book),
+          ),
         ),
-        //对Widget截取的行为，比如这里 Clip.antiAlias 指抗锯齿
-        clipBehavior: Clip.antiAlias,
-        semanticContainer: false,
-        child: ConstrainedBox(
-          child: body,
-          constraints: new BoxConstraints.expand(),
+        child: InkWell(
+          onTap: () {
+            _CardClick(pair, context, Index);
+          },
+          child: Card(
+            color: Color.fromARGB(255, 239, 244, 255),
+            //z轴的高度，设置card的阴影
+            elevation: 8.0,
+            //设置shape，这里设置成了R角
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(3.0)),
+            ),
+            //对Widget截取的行为，比如这里 Clip.antiAlias 指抗锯齿
+            clipBehavior: Clip.antiAlias,
+            semanticContainer: false,
+            child: ConstrainedBox(
+              child: body,
+              constraints: new BoxConstraints.expand(),
+            ),
+          ),
         ),
       ),
     );
   }
 
-  static void _CardClick<T>(T temp_obj, BuildContext context, List<int> Index) {
+  void _CardClick<T>(T temp_obj, BuildContext context, List<int> Index) {
     dynamic pair;
     if (Index.length == 1) {
       pair = BookConfig.ParseBook([BookConfig.BookGroup[Index[0]]])[0];
@@ -408,7 +518,7 @@ class _RandomWordsState extends State<RandomWords> {
   }
 
   ///底部弹出框的内容
-  static Widget buildBottomSheetWidget(
+  Widget buildBottomSheetWidget(
       BuildContext context, BGroup gp, List<int> Index) {
     return FractionallySizedBox(
       heightFactor: 1.3,
@@ -436,8 +546,7 @@ class _RandomWordsState extends State<RandomWords> {
                       10, 10, 10, 120), //const EdgeInsets.all(16.0),
                   itemBuilder: (context, i) {
                     //if (i.isOdd) return const Divider(); /*2*/
-                    var item = _RandomWordsState.CreateView(
-                        gp.pages[i], context, [Index[0], i]);
+                    var item = CreateView(gp.pages[i], context, [Index[0], i]);
                     return item;
                   },
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(

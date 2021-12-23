@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -78,7 +80,8 @@ class ChapterTextPainter extends CustomPainter {
         textDirection: TextDirection.ltr);
     textPainter.layout(maxWidth: argData.width!);
 
-    TextSelection selection = TextSelection(baseOffset: 0, extentOffset: tempStr.length);
+    TextSelection selection =
+        TextSelection(baseOffset: 0, extentOffset: tempStr.length);
     // get a list of TextBoxes (Rects)  computeLineMetrics
     //List<TextBox> boxes = textPainter.getBoxesForSelection(selection);
     //var LineList = textPainter.computeLineMetrics();
@@ -97,14 +100,14 @@ class ChapterTextPainter extends CustomPainter {
       final bottom = line.baseline + line.descent;
 
       // Current line overflow page
-      if (currentPageBottom < bottom||lines.length-1 == i) {
+      if (currentPageBottom < bottom || lines.length - 1 == i) {
         // https://stackoverflow.com/questions/56943994/how-to-get-the-raw-text-from-a-flutter-textbox/56943995#56943995
         currentPageEndIndex =
             textPainter.getPositionForOffset(Offset(left, top)).offset;
         //final pageText =
         //    widget.text.substring(currentPageStartIndex, currentPageEndIndex);
         //_pageTexts.add(pageText);
-        
+
         result.add(currentPageEndIndex);
         currentPageStartIndex = currentPageEndIndex;
         currentPageBottom = top + argData.height!;
@@ -253,8 +256,8 @@ class ChapterTextPainter extends CustomPainter {
       //canvas.drawColor(Color.fromARGB(255, 255, 236, 228),BlendMode.clear);
     }
 
-    Rect rect =
-        Rect.fromLTWH(offset, 0, MixWdith + 10, ScreenAdaptation.screenHeight + 20);
+    Rect rect = Rect.fromLTWH(
+        offset, 0, MixWdith + 10, ScreenAdaptation.screenHeight + 20);
     //Rect.fromCircle(center: Offset(cx, cy), radius: radius);
     canvas.drawRect(rect, paint_Back);
 
@@ -278,8 +281,8 @@ class ChapterTextPainter extends CustomPainter {
     tp.layout(maxWidth: width);
 
     var end = tp
-        .getPositionForOffset(Offset(
-            ScreenAdaptation.screenWidth, ScreenAdaptation.screenHeight))
+        .getPositionForOffset(
+            Offset(ScreenAdaptation.screenWidth, ScreenAdaptation.screenHeight))
         .offset;
 
     double x = 10;
@@ -465,12 +468,29 @@ class _TextCanvasState extends State<TextCanvas>
   late Future GetBookFile;
   // 获取知乎每天的新闻，数据获取成功后 setState来刷新数据
   Future getPathBook(List<int> Index, BuildContext context) async {
-    return rootBundle.loadString('images/twyl.txt').then((data1) {
-      var aa = MediaQuery.of(context);
+    widget.text = "";
+    var str = "";
+    widget.pa = null;
+    if (widget.bt!.type == TXT.path) {
+      if (widget.bt!.src == "") {
+        await rootBundle.loadString('images/twyl.txt').then((data1) {
+          str = data1;
+        });
+      } else {
+        var f = File(widget.bt!.src);
+        try {
+          str = await f.readAsString();
+        } catch (e) {
+          str = "TXT只支持utf8编码";
+        }
+        //str = String.fromCharCodes(byte);
+        //print("object:${str.length},widget.bt!.src:${widget.bt!.src}");
+      }
+
       setState(() {
-        widget.text = data1;
+        widget.text = str;
         widget.pa = Paging_algorithm(
-          data1,
+          str,
           ScreenAdaptation.screenWidth,
           ScreenAdaptation.screenHeight,
           TextStyle(
@@ -490,8 +510,35 @@ class _TextCanvasState extends State<TextCanvas>
         );
       });
 
-      //TextBook = pa.This();
-    });
+      /*return rootBundle.loadString('images/twyl.txt').then((data1) {
+        //var aa = MediaQuery.of(context);
+
+        //TextBook = pa.This();
+      });*/
+    } else {
+      setState(() {
+        widget.text = "加载网络图书没实现！！！";
+        widget.pa = Paging_algorithm(
+          widget.text!,
+          ScreenAdaptation.screenWidth,
+          ScreenAdaptation.screenHeight,
+          TextStyle(
+            //height: 1.0,
+            //fontFamily: 'Piazzolla',
+            fontFeatures: [
+              FontFeature.tabularFigures(),
+              //FontFeature.proportionalFigures(),
+            ],
+            fontSize: BookConfig.GetFontSize(),
+            color: BookConfig.GetFontColor(),
+          ),
+          Index,
+          context,
+          ChapterIndex: widget.bt!.chapter_index,
+          page: widget.bt!.chapterpage,
+        );
+      });
+    }
   }
 
   @override
@@ -681,7 +728,8 @@ class _TextCanvasState extends State<TextCanvas>
                     if (widget.dir == Dir.left) {
                       offset = detail.globalPosition.dx; //Size.width
                       //log("PointStart:${widget.PointStart.dx - offset},detail:${offset}");
-                      offset = Size.width - 10 - (widget.PointStart.dx - offset);
+                      offset =
+                          Size.width - 10 - (widget.PointStart.dx - offset);
                     } else if (widget.dir == Dir.right) {
                       //offset = (widget.PointStart.dx - offset);
                       offset = detail.globalPosition.dx;

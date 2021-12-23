@@ -6,8 +6,6 @@ import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:english_words/english_words.dart';
-import 'package:flutter/services.dart';
 import 'books.dart';
 import 'utils/GlobalConfig.dart';
 import 'package:bot_toast/bot_toast.dart';
