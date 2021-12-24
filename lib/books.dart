@@ -258,91 +258,45 @@ class _RandomWordsState extends State<RandomWords> {
   }
 
   Widget CreateView<T>(T pair, BuildContext context, List<int> Index,
-      {double fontsize = 16}) {
+      {double fontsize = 16, void Function()? builder}) {
     Widget body = Text("data");
     log(pair.runtimeType.toString());
     if (pair is BImage) {
+      //FittedBox
       if (pair.type == image.http) {
-        body = new FittedBox(
-          fit: BoxFit.fill,
-          child: Stack(
-            children: [
-              new Image.network(pair.src, fit: BoxFit.fill),
-              Positioned(
-                  right: -25,
-                  top: 10,
-                  child: Transform.rotate(
-                    //RotatedBox //Transform.rotate
-                    angle: math.pi / 4,
-                    child: Text(
-                      "       Image     ",
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.black,
-                        backgroundColor: Colors.red,
-                      ),
-                    ),
-                  ))
-            ],
-          ),
-        );
+        body = new Image.network(pair.src, fit: BoxFit.fill);
         //body = new Image.network(pair.src, fit: BoxFit.fill);
       } else {
-        body = new FittedBox(
-          fit: BoxFit.fill,
-          child: Stack(
-            children: [
-              new Image.file(File(pair.src), fit: BoxFit.fill),
-              Positioned(
-                  right: -25,
-                  top: 10,
-                  child: Transform.rotate(
-                    //RotatedBox //Transform.rotate
-                    angle: math.pi / 4,
-                    child: Text(
-                      "       Image     ",
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.black,
-                        backgroundColor: Colors.red,
-                      ),
+        body = Stack(
+          children: [
+            new Image.file(File(pair.src), fit: BoxFit.fill),
+            Positioned(
+                right: -25,
+                top: 10,
+                child: Transform.rotate(
+                  //RotatedBox //Transform.rotate
+                  angle: math.pi / 4,
+                  child: Text(
+                    "       Image     ",
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.black,
+                      backgroundColor: Colors.red,
                     ),
-                  ))
-            ],
-          ),
+                  ),
+                ))
+          ],
         );
         //Transform.rotate(angle: - math.pi / 4, child: Text("Text"),);
       }
-      body = ClipImagePage("", "Image", widget: body,Fontsize: fontsize);
+      body = ClipImagePage("", "Image", widget: body, Fontsize: fontsize);
     }
     if (pair is BTXT) {
       if (pair.backimage == "") {
         body = ClipImagePage(pair.name, "TXT", Fontsize: fontsize);
       } else {
         body = ClipImagePage(pair.name, "TXT",
-            widget: new FittedBox(
-              fit: BoxFit.fill,
-              child: Stack(
-                children: [
-                  new Image.network(pair.backimage, fit: BoxFit.fill),
-                  Positioned(
-                      right: -20,
-                      top: 5,
-                      child: Transform.rotate(
-                        //RotatedBox //Transform.rotate
-                        angle: math.pi / 4,
-                        child: Text(
-                          "       TXT     ",
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.black,
-                            backgroundColor: Colors.red,
-                          ),
-                        ),
-                      ))
-                ],
-              ),
-            ),
+            widget: new Image.network(pair.backimage, fit: BoxFit.fill),
             Fontsize: fontsize);
       }
 
@@ -357,7 +311,8 @@ class _RandomWordsState extends State<RandomWords> {
       var obj_temp = pair as BGroup;
       var temp_widget = <Widget>[];
       for (var i = 0; i < obj_temp.pages.length; i++) {
-        temp_widget.add(CreateView(obj_temp.pages[i], context, [0, 0],fontsize:6.0));
+        temp_widget
+            .add(CreateView(obj_temp.pages[i], context, [0, 0], fontsize: 6.0));
       }
       body = IgnorePointer(
           child: Stack(
@@ -419,8 +374,15 @@ class _RandomWordsState extends State<RandomWords> {
                   (widget.BookShelf[Index[0]] as BGroup)
                       .pages
                       .removeAt(Index[1]);
+                  if ((widget.BookShelf[Index[0]] as BGroup)
+                      .pages.length == 0) {
+                    widget.BookShelf.removeAt(Index[0]);
+                  }
                 }
                 BookConfig.save();
+                if (builder != null) {
+                  builder();
+                }
                 setState(() {});
               }, backgroundReturn: () {
                 BotToast.showText(text: '不导入');
@@ -516,7 +478,10 @@ class _RandomWordsState extends State<RandomWords> {
       showModalBottomSheet(
           builder: (BuildContext context) {
             //构建弹框中的内容
-            return buildBottomSheetWidget(context, pair as BGroup, Index);
+            return StatefulBuilder(builder: (context1, state) {
+              return buildBottomSheetWidget(
+                  context, pair as BGroup, Index, state);
+            });
           },
           backgroundColor: Colors.transparent, //重要
           context: context);
@@ -524,8 +489,8 @@ class _RandomWordsState extends State<RandomWords> {
   }
 
   ///底部弹出框的内容
-  Widget buildBottomSheetWidget(
-      BuildContext context, BGroup gp, List<int> Index) {
+  Widget buildBottomSheetWidget(BuildContext context, BGroup gp,
+      List<int> Index, void Function(void Function())? builder) {
     return FractionallySizedBox(
       heightFactor: 1.3,
       child: Container(
@@ -538,7 +503,7 @@ class _RandomWordsState extends State<RandomWords> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                gp.name,
+                "${gp.name}-${widget.BookShelf.length}",
                 style: TextStyle(
                   color: Color(0xFF36393D),
                   fontSize: 18,
@@ -552,7 +517,16 @@ class _RandomWordsState extends State<RandomWords> {
                       10, 10, 10, 120), //const EdgeInsets.all(16.0),
                   itemBuilder: (context, i) {
                     //if (i.isOdd) return const Divider(); /*2*/
-                    var item = CreateView(gp.pages[i], context, [Index[0], i]);
+                    var item = CreateView(gp.pages[i], context, [Index[0], i],
+                        builder: () {
+                      gp.pages.removeAt(i);
+                      if (builder != null) {
+                        builder(() {});
+                      }
+                      if (gp.pages.length == 0) {
+                        Navigator.of(context).pop();
+                      }
+                    });
                     return item;
                   },
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
