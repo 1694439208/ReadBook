@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:fast_gbk/fast_gbk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_application_1/Book/Paging.dart';
@@ -296,8 +297,8 @@ class ChapterTextPainter extends CustomPainter {
     } else if (dir == Dir.bottom) {
       y += offset;
     }
-    tp1.paint(canvas, new Offset(x + 10, 5)); //5
-    tp.paint(canvas, new Offset(x, y));
+    tp1.paint(canvas, new Offset(x + 10, 0)); //5
+    tp.paint(canvas, new Offset(x, y + 5));
 
     /*var ChartList = text.split('');
     double xOffset = 0.0;
@@ -477,11 +478,22 @@ class _TextCanvasState extends State<TextCanvas>
           str = data1;
         });
       } else {
+        /*File gbkFile = File("gbkFile.txt");
+        var stream = gbkFile.openRead();
+        stream
+            .transform(gbk.decoder)
+            .transform(const LineSplitter())
+            .listen((line) {
+          stdout.writeln(line);
+        });*/
+
         var f = File(widget.bt!.src);
         try {
           str = await f.readAsString();
         } catch (e) {
           str = "TXT只支持utf8编码";
+          var stream = f.openRead();
+          str = await stream.transform(gbk.decoder).join();
         }
         //str = String.fromCharCodes(byte);
         //print("object:${str.length},widget.bt!.src:${widget.bt!.src}");
@@ -620,7 +632,9 @@ class _TextCanvasState extends State<TextCanvas>
           case ConnectionState.active:
           case ConnectionState.waiting:
             print('waiting');
-            return Text("data");
+            return Center(
+                child: Text('加载中...'),
+              );
           case ConnectionState.done:
             print('done:${widget.pa == null}');
             if (snapshot.hasError || widget.pa == null) {

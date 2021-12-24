@@ -14,6 +14,7 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_swipe_action_cell/flutter_swipe_action_cell.dart';
 import 'package:photo_view/photo_view.dart';
 
+import 'Book/CoverChild.dart';
 import 'Book/text_canvas.dart';
 import 'BookType/PageAbs.dart';
 import 'Photo/Photo.dart';
@@ -141,7 +142,7 @@ class _RandomWordsState extends State<RandomWords> {
                         cancel: () {
                       BotToast.showText(text: '不导入');
                       for (var item in result.files) {
-                        BookConfig.AddBookGroup(
+                        BookConfig.AddBookPathGroup(
                             item.name, "", TXT.path, item.path!);
                       }
                       setState(() {
@@ -154,7 +155,7 @@ class _RandomWordsState extends State<RandomWords> {
                         var temp_list = path.split(":");
                         temp_list = temp_list.last.split("/");
                         //log("path:${temp_list}");
-                        BookConfig.AddBookGroup(
+                        BookConfig.AddBookPathGroup(
                             item.name, temp_list.first, TXT.path, item.path!);
                         //var f = File(item.path!);
                         //var str = f.readAsStringSync();
@@ -256,7 +257,8 @@ class _RandomWordsState extends State<RandomWords> {
         });*/
   }
 
-  Widget CreateView<T>(T pair, BuildContext context, List<int> Index) {
+  Widget CreateView<T>(T pair, BuildContext context, List<int> Index,
+      {double fontsize = 16}) {
     Widget body = Text("data");
     log(pair.runtimeType.toString());
     if (pair is BImage) {
@@ -311,34 +313,37 @@ class _RandomWordsState extends State<RandomWords> {
         );
         //Transform.rotate(angle: - math.pi / 4, child: Text("Text"),);
       }
+      body = ClipImagePage("", "Image", widget: body,Fontsize: fontsize);
     }
     if (pair is BTXT) {
       if (pair.backimage == "") {
-        body = Text("逃亡yl");
+        body = ClipImagePage(pair.name, "TXT", Fontsize: fontsize);
       } else {
-        body = new FittedBox(
-          fit: BoxFit.fill,
-          child: Stack(
-            children: [
-              new Image.network(pair.backimage, fit: BoxFit.fill),
-              Positioned(
-                  right: -20,
-                  top: 5,
-                  child: Transform.rotate(
-                    //RotatedBox //Transform.rotate
-                    angle: math.pi / 4,
-                    child: Text(
-                      "       TXT     ",
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.black,
-                        backgroundColor: Colors.red,
-                      ),
-                    ),
-                  ))
-            ],
-          ),
-        );
+        body = ClipImagePage(pair.name, "TXT",
+            widget: new FittedBox(
+              fit: BoxFit.fill,
+              child: Stack(
+                children: [
+                  new Image.network(pair.backimage, fit: BoxFit.fill),
+                  Positioned(
+                      right: -20,
+                      top: 5,
+                      child: Transform.rotate(
+                        //RotatedBox //Transform.rotate
+                        angle: math.pi / 4,
+                        child: Text(
+                          "       TXT     ",
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.black,
+                            backgroundColor: Colors.red,
+                          ),
+                        ),
+                      ))
+                ],
+              ),
+            ),
+            Fontsize: fontsize);
       }
 
       /*body = Center(
@@ -352,7 +357,7 @@ class _RandomWordsState extends State<RandomWords> {
       var obj_temp = pair as BGroup;
       var temp_widget = <Widget>[];
       for (var i = 0; i < obj_temp.pages.length; i++) {
-        temp_widget.add(CreateView(obj_temp.pages[i], context, [0, 0]));
+        temp_widget.add(CreateView(obj_temp.pages[i], context, [0, 0],fontsize:6.0));
       }
       body = IgnorePointer(
           child: Stack(
@@ -421,7 +426,7 @@ class _RandomWordsState extends State<RandomWords> {
                 BotToast.showText(text: '不导入');
               });
             },
-            color: Colors.red),
+            color: Colors.brown),
       ],
       // The child of the Slidable is what the user sees when the
       // component is not dragged.
@@ -437,7 +442,8 @@ class _RandomWordsState extends State<RandomWords> {
             _CardClick(pair, context, Index);
           },
           child: Card(
-            color: Color.fromARGB(255, 239, 244, 255),
+            color: Color.fromARGB(
+                255, 243, 240, 255), //Color.fromARGB(255, 239, 244, 255),
             //z轴的高度，设置card的阴影
             elevation: 8.0,
             //设置shape，这里设置成了R角

@@ -14,6 +14,7 @@ class BookConfig {
     preferences = await SharedPreferences.getInstance();
     return true;
   }
+  static Color GlobalBolor = Colors.brown;
 
   static List<dynamic> BookGroup = [];
 
@@ -47,11 +48,13 @@ class BookConfig {
     }
     return bp;
   }
-  static void save(){
+
+  static void save() {
     preferences.setString("BookGroup", json.encode(BookGroup));
   }
-  //BookGroup 添加书籍
-  static void AddBookGroup(
+
+  //BookGroup 添加本地书籍
+  static void AddBookPathGroup(
       String name, String Group_name, TXT type, String src) {
     if (Group_name == "") {
       BookGroup.add({
@@ -59,7 +62,7 @@ class BookConfig {
         "name": name,
         "book_type": "path",
         "source": src,
-        "backimage": "http://bookcover.yuewen.com/qdbimg/349573/1031728889/180",
+        "backimage": "",
         "chapterpage": 0,
         "chapter_index": 0
       });
@@ -76,8 +79,7 @@ class BookConfig {
             "name": name,
             "book_type": "path",
             "source": src,
-            "backimage":
-                "http://bookcover.yuewen.com/qdbimg/349573/1031728889/180",
+            "backimage": "",
             "chapterpage": 0,
             "chapter_index": 0
           });
@@ -94,8 +96,7 @@ class BookConfig {
               "name": name,
               "book_type": "path",
               "source": src,
-              "backimage":
-                  "http://bookcover.yuewen.com/qdbimg/349573/1031728889/180",
+              "backimage": "",
               "chapterpage": 0,
               "chapter_index": 0
             }
@@ -140,7 +141,7 @@ class BookConfig {
 
   //获取书架信息
   static List<BookPage> GetBookGroup() {
-    var BookGroupText =  preferences.getString("BookGroup");
+    var BookGroupText = preferences.getString("BookGroup");
     var text = BookGroupText ??
         """
     [
