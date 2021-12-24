@@ -526,7 +526,7 @@ class _RandomWordsState extends State<RandomWords> {
                       if (gp.pages.length == 0) {
                         Navigator.of(context).pop();
                       }
-                    });
+                    },);
                     return item;
                   },
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
