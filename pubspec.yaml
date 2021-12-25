@@ -53,7 +53,10 @@ dependencies:
   #gbk编码器支持
   fast_gbk: ^1.0.0
   #自动调整text字体大小
-  auto_size_text: ^3.0.0
+  #auto_size_text: ^3.0.0
+  #屏幕亮度
+  #screen_brightness: ^0.1.2+2
+  #device_display_brightness: ^0.0.6
   
 dev_dependencies:
   flutter_test:

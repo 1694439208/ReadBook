@@ -31,8 +31,11 @@
             android:name="flutterEmbedding"
             android:value="2" />
     </application>
+    <!--网络权限-->>
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <!--屏幕亮度权限-->>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 </manifest>

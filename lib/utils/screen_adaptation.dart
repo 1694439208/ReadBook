@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:ui';
 
+//import 'package:device_display_brightness/device_display_brightness.dart';
 import 'package:flutter/material.dart';
 
 enum ScreenAdaptationType {
@@ -29,12 +30,17 @@ class ScreenAdaptation {
     final mediaQueryData = MediaQuery.of(context);
     //width = mediaQueryData.size.width - 20;
     //height = mediaQueryData.size.height - 20;
-    
+
     statusBarHeight = mediaQueryData.padding.top;
-    ScreenAdaptation.screenHeight = mediaQueryData.size.height - statusBarHeight - 20;
+    ScreenAdaptation.screenHeight =
+        mediaQueryData.size.height - statusBarHeight - 20;
     ScreenAdaptation.screenWidth = mediaQueryData.size.width - 10;
 //    double size =
 //        mediaQueryData.size.longestSide * mediaQueryData.devicePixelRatio;
+  }
+
+  static Future<void> setBrightness(double brightness) async {
+    //await DeviceDisplayBrightness.setBrightness(brightness);
   }
 }
 

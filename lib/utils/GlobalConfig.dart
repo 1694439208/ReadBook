@@ -239,7 +239,12 @@ class BookConfig {
       return Color(color);
     }
   }
-
+  static void Setbrightness(double data){
+    preferences.setDouble("brightness", data);
+  }
+  static double? Getbrightness(){
+    return preferences.getDouble("brightness");
+  }
   //设置背景颜色
   static void SetBackgroundColor(Color color) {
     //var hex = '#${color.value.toRadixString(16)}';//转十六进制

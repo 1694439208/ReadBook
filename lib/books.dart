@@ -374,8 +374,9 @@ class _RandomWordsState extends State<RandomWords> {
                   (widget.BookShelf[Index[0]] as BGroup)
                       .pages
                       .removeAt(Index[1]);
-                  if ((widget.BookShelf[Index[0]] as BGroup)
-                      .pages.length == 0) {
+                  if ((widget.BookShelf[Index[0]] as BGroup).pages.length ==
+                      0) {
+                    BookConfig.BookGroup.removeAt(Index[0]);
                     widget.BookShelf.removeAt(Index[0]);
                   }
                 }
@@ -517,16 +518,20 @@ class _RandomWordsState extends State<RandomWords> {
                       10, 10, 10, 120), //const EdgeInsets.all(16.0),
                   itemBuilder: (context, i) {
                     //if (i.isOdd) return const Divider(); /*2*/
-                    var item = CreateView(gp.pages[i], context, [Index[0], i],
-                        builder: () {
-                      gp.pages.removeAt(i);
-                      if (builder != null) {
-                        builder(() {});
-                      }
-                      if (gp.pages.length == 0) {
-                        Navigator.of(context).pop();
-                      }
-                    },);
+                    var item = CreateView(
+                      gp.pages[i],
+                      context,
+                      [Index[0], i],
+                      builder: () {
+                        gp.pages.removeAt(i);
+                        if (builder != null) {
+                          builder(() {});
+                        }
+                        if (gp.pages.length == 0) {
+                          Navigator.of(context).pop();
+                        }
+                      },
+                    );
                     return item;
                   },
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(

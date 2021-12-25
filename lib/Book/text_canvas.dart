@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 import 'dart:ui';
 
+//import 'package:device_display_brightness/device_display_brightness.dart';
 import 'package:fast_gbk/fast_gbk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -411,6 +412,7 @@ class ChapterTextPainter extends CustomPainter {
       //log("oldDelegate:${oldDelegate.text} ,text:${text}");
       return oldDelegate.text != text ||
           oldDelegate.style!.color!.value != style!.color!.value ||
+          oldDelegate.BackgroundColor!.value != BackgroundColor!.value ||
           oldDelegate.offset != offset;
     }
     return false;
@@ -450,13 +452,51 @@ class TextCanvas extends StatefulWidget {
 
   bool menu = false; //菜单是否弹出
 
-  double _sliderbrightnessValue = 0.0; //亮度
+  double _sliderbrightnessValue = BookConfig.Getbrightness() ?? 0.5; //亮度
   double _sliderSizeValue = BookConfig.GetFontSize(); //字体大小
 
   final _controller1 = ScrollController(); //目录滚动条
   double ScrollOffset = 0.0; //滚动条位置
 
   var PointStart = Offset(0, 0); //拖动翻页判断起始点
+
+  var ColorFont = [
+    Color.fromARGB(255, 255, 255, 253),
+    Color.fromARGB(255, 192, 192, 192),
+    Color.fromARGB(255, 140, 140, 140),
+    Color.fromARGB(255, 102, 102, 102),
+    Color.fromARGB(255, 50,50,50),
+    Color.fromARGB(255, 1,1,1),
+    Color.fromARGB(255, 226,219,209),
+    Color.fromARGB(255, 210,224,207),
+    Color.fromARGB(255, 183,208,205),
+    Color.fromARGB(255, 221,204,205),
+    Color.fromARGB(255, 216,202,193),
+    Color.fromARGB(255, 69,64,61),
+    Color.fromARGB(255, 55,67,53),
+    Color.fromARGB(255, 61,76,79),
+    Color.fromARGB(255, 92,83,78),
+  ];
+  var ColorBackound = [
+    Color.fromARGB(255, 128,103,106),
+    Color.fromARGB(255, 124,115,100),
+    Color.fromARGB(255, 89,99,118),
+    Color.fromARGB(255, 106,124,100),
+    Color.fromARGB(255, 50,14,16),
+    Color.fromARGB(255, 108,115,146),
+    Color.fromARGB(255, 197,188,173),
+    Color.fromARGB(255, 203,207,184),
+    Color.fromARGB(255, 180,185,153),
+    Color.fromARGB(255, 185,202,191),
+    Color.fromARGB(255, 32,49,26),
+    Color.fromARGB(255, 216,210,194),
+    Color.fromARGB(255, 255,249,249),
+    Color.fromARGB(255, 192,192,192),
+    Color.fromARGB(255, 94,94,92),
+    Color.fromARGB(255, 50,50,50),
+  ];
+  var ThisFontColor = BookConfig.GetFontColor();
+  var ThisColorBackound = BookConfig.GetBackgroundColor();
 
   @override
   _TextCanvasState createState() => _TextCanvasState();
@@ -533,7 +573,7 @@ class _TextCanvasState extends State<TextCanvas>
         widget.pa = Paging_algorithm(
           widget.text!,
           ScreenAdaptation.screenWidth,
-          ScreenAdaptation.screenHeight,
+          ScreenAdaptation.screenHeight - 10,
           TextStyle(
             //height: 1.0,
             //fontFamily: 'Piazzolla',
@@ -561,9 +601,11 @@ class _TextCanvasState extends State<TextCanvas>
 
     //_controller = AnimationController(
     //    vsync: this, duration: const Duration(milliseconds: 2000)); //时长);
+    ScreenAdaptation.setBrightness(widget._sliderbrightnessValue);
+    //DeviceDisplayBrightness.keepOn(enabled: true);
 
     _controller = AnimationController(
-        duration: const Duration(milliseconds: 100), vsync: this);
+        duration: const Duration(milliseconds: 280), vsync: this);
     /*animation = Tween<double>(begin: 100, end: 0).animate(_controller)
       ..addListener(() {
         //print(animation.value);
@@ -607,6 +649,7 @@ class _TextCanvasState extends State<TextCanvas>
   void dispose() {
     //SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
     //    overlays: [SystemUiOverlay.top]);
+    //DeviceDisplayBrightness.keepOn(enabled: false);
     super.dispose();
     _controller.dispose();
   }
@@ -633,8 +676,8 @@ class _TextCanvasState extends State<TextCanvas>
           case ConnectionState.waiting:
             print('waiting');
             return Center(
-                child: Text('加载中...'),
-              );
+              child: Text('加载中...'),
+            );
           case ConnectionState.done:
             print('done:${widget.pa == null}');
             if (snapshot.hasError || widget.pa == null) {
@@ -660,6 +703,7 @@ class _TextCanvasState extends State<TextCanvas>
               width: ScreenAdaptation.screenWidth,
               offset: widget.Xoffset,
               dir: widget.dir,
+              BackgroundColor: BookConfig.GetBackgroundColor(),
             );
             var BView = CustomPaint(
               painter: BookView,
@@ -761,7 +805,7 @@ class _TextCanvasState extends State<TextCanvas>
                   //拖动结束
                   if (widget.dir == Dir.left) {
                     if (detail.velocity.pixelsPerSecond.dx < 350 &&
-                        widget.Xoffset > ScreenAdaptation.screenWidth / 6 * 5) {
+                        widget.Xoffset > ScreenAdaptation.screenWidth - 6) {
                       setState(() {
                         widget.dir = Dir.none;
                         widget.Xoffset = 0.0;
@@ -772,7 +816,7 @@ class _TextCanvasState extends State<TextCanvas>
                   }
                   if (widget.dir == Dir.right) {
                     if (detail.velocity.pixelsPerSecond.dx < 350 &&
-                        widget.Xoffset < ScreenAdaptation.screenWidth / 6) {
+                        widget.Xoffset < 6) {
                       setState(() {
                         widget.dir = Dir.none;
                         widget.Xoffset = 0.0;
@@ -1004,14 +1048,15 @@ class _TextCanvasState extends State<TextCanvas>
                       ),
                       new Divider(),
                       Container(
-                        padding: EdgeInsets.fromLTRB(0, 5, 0, 0),
+                        padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
                         //height: 60,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           //crossAxisAlignment: CrossAxisAlignment.center,
                           //mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text('亮度', textAlign: TextAlign.center),
+                            Text('亮度:${widget._sliderbrightnessValue}',
+                                textAlign: TextAlign.center),
                             Slider(
                               value: widget._sliderbrightnessValue,
                               onChanged: (data) {
@@ -1024,11 +1069,13 @@ class _TextCanvasState extends State<TextCanvas>
                                 print('start:$data');
                               },
                               onChangeEnd: (data) {
+                                ScreenAdaptation.setBrightness(data);
+                                BookConfig.Setbrightness(data);
                                 print('end:$data');
                               },
                               min: 0.0,
-                              max: 10.0,
-                              divisions: 10,
+                              max: 1.0,
+                              divisions: 20,
                               label: '${widget._sliderbrightnessValue}',
                               activeColor: Colors.green,
                               inactiveColor: Colors.grey,
@@ -1047,66 +1094,42 @@ class _TextCanvasState extends State<TextCanvas>
                           //crossAxisAlignment: CrossAxisAlignment.center,
                           //mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text('字体颜色', textAlign: TextAlign.center),
+                            Text(
+                              '字体颜色',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: widget.ThisFontColor),
+                            ),
                             SizedBox(height: 10),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Container(
-                                  width: 35,
-                                  height: 35,
-                                  decoration: BoxDecoration(
-                                    color: Color.fromARGB(255, 255, 255, 253),
-                                    shape: BoxShape.circle,
-                                    //borderRadius: BorderRadius.all(
-                                    //    Radius.circular(10)),
-                                    border: Border.all(
-                                        color: Colors.grey, width: 1),
-                                  ),
-                                ),
-                                Container(
-                                  width: 35,
-                                  height: 35,
-                                  decoration: BoxDecoration(
-                                    color: Color.fromARGB(255, 192, 192, 192),
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                        color: Colors.grey, width: 1),
-                                  ),
-                                ),
-                                Container(
-                                  width: 35,
-                                  height: 35,
-                                  decoration: BoxDecoration(
-                                    color: Color.fromARGB(255, 140, 140, 140),
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                        color: Colors.grey, width: 1),
-                                  ),
-                                ),
-                                Container(
-                                  width: 35,
-                                  height: 35,
-                                  decoration: BoxDecoration(
-                                    color: Color.fromARGB(255, 102, 102, 102),
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                        color: Colors.grey, width: 1),
-                                  ),
-                                ),
-                                //SizedBox(width: 3),
-                                Container(
-                                  width: 35,
-                                  height: 35,
-                                  decoration: BoxDecoration(
-                                    color: Color.fromARGB(255, 0, 0, 0),
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                        color: Colors.grey, width: 1),
-                                  ),
-                                ),
-                              ],
+                            Container(
+                              //height: 35,
+                              child: Wrap(
+                                children: widget.ColorFont.map(
+                                    (item) => GestureDetector(
+                                          onTap: () {
+                                            BookConfig.SetFontColor(item);
+                                            setState(() {
+                                              widget.ThisFontColor = item;
+                                            });
+                                          },
+                                          child: Container(
+                                            width: 35,
+                                            height: 35,
+                                            decoration: BoxDecoration(
+                                              color: item,
+                                              shape: BoxShape.circle,
+                                              border: Border.all(
+                                                  color: Colors.grey, width: 1),
+                                            ),
+                                          ),
+                                        )).toList().cast<Widget>(),
+                              ) /* ListView.builder(
+                                  padding: EdgeInsets.fromLTRB(0, 0, 0, 5),
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: widget.ColorFont.length,
+                                  itemBuilder: (context, index) {
+                                    return ;
+                                  })*/
+                              ,
                             ),
                           ],
                         ),
@@ -1119,66 +1142,35 @@ class _TextCanvasState extends State<TextCanvas>
                           //crossAxisAlignment: CrossAxisAlignment.center,
                           //mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text('背景颜色', textAlign: TextAlign.center),
+                            Text(
+                              '背景颜色',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: widget.ThisColorBackound),
+                            ),
                             SizedBox(height: 10),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Container(
-                                  width: 35,
-                                  height: 35,
-                                  decoration: BoxDecoration(
-                                    color: Color.fromARGB(255, 128, 101, 106),
-                                    shape: BoxShape.circle,
-                                    //borderRadius: BorderRadius.all(
-                                    //    Radius.circular(10)),
-                                    border: Border.all(
-                                        color: Colors.grey, width: 1),
-                                  ),
-                                ),
-                                Container(
-                                  width: 35,
-                                  height: 35,
-                                  decoration: BoxDecoration(
-                                    color: Color.fromARGB(255, 123, 114, 99),
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                        color: Colors.grey, width: 1),
-                                  ),
-                                ),
-                                Container(
-                                  width: 35,
-                                  height: 35,
-                                  decoration: BoxDecoration(
-                                    color: Color.fromARGB(255, 88, 101, 118),
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                        color: Colors.grey, width: 1),
-                                  ),
-                                ),
-                                Container(
-                                  width: 35,
-                                  height: 35,
-                                  decoration: BoxDecoration(
-                                    color: Color.fromARGB(255, 179, 155, 149),
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                        color: Colors.grey, width: 1),
-                                  ),
-                                ),
-                                //SizedBox(width: 3),
-                                Container(
-                                  width: 35,
-                                  height: 35,
-                                  decoration: BoxDecoration(
-                                    color: Color.fromARGB(255, 216, 210, 195),
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                        color: Colors.grey, width: 1),
-                                  ),
-                                ),
-                              ],
+                            Container(
+                              //height: 35,
+                              child: Wrap(
+                                children: widget.ColorBackound.map(
+                                    (item) => GestureDetector(
+                                          onTap: () {
+                                            BookConfig.SetBackgroundColor(item);
+                                            setState(() {
+                                              widget.ThisColorBackound = item;
+                                            });
+                                          },
+                                          child: Container(
+                                            width: 35,
+                                            height: 35,
+                                            decoration: BoxDecoration(
+                                              color: item,
+                                              shape: BoxShape.circle,
+                                              border: Border.all(
+                                                  color: Colors.grey, width: 1),
+                                            ),
+                                          ),
+                                        )).toList().cast<Widget>(),
+                              ),
                             ),
                           ],
                         ),
