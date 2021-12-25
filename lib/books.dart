@@ -59,8 +59,10 @@ class _RandomWordsState extends State<RandomWords> {
       textStyle: const TextStyle(fontSize: 15, color: Colors.white),
     );
     return Scaffold(
+      //extendBodyBehindAppBar: true,
       //主ui
       appBar: AppBar(
+        //toolbarHeight: 0,
         title: const Text('书架'),
         actions: <Widget>[
           // 新增代码开始 ...

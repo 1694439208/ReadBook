@@ -6,6 +6,7 @@ import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'books.dart';
 import 'utils/GlobalConfig.dart';
 import 'package:bot_toast/bot_toast.dart';
@@ -14,6 +15,8 @@ void main() => realRunApp();
 
 void realRunApp() {
   runApp(MyApp());
+  //SystemUiOverlayStyle systemUiOverlayStyle = SystemUiOverlayStyle(statusBarColor:Colors.transparent);
+  //SystemChrome.setSystemUIOverlayStyle(systemUiOverlayStyle);
 }
 
 Future<void> loadAsync() async {
@@ -28,6 +31,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     //final wordPair = WordPair.random();
     return MaterialApp(
+      //debugShowCheckedModeBanner: false,
       title: '海绵阅读器',
       builder: BotToastInit(),
       navigatorObservers: [BotToastNavigatorObserver()],

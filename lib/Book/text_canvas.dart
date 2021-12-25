@@ -601,6 +601,7 @@ class _TextCanvasState extends State<TextCanvas>
 
     //_controller = AnimationController(
     //    vsync: this, duration: const Duration(milliseconds: 2000)); //时长);
+
     ScreenAdaptation.setBrightness(widget._sliderbrightnessValue);
     //DeviceDisplayBrightness.keepOn(enabled: true);
 
@@ -624,6 +625,8 @@ class _TextCanvasState extends State<TextCanvas>
       
     });*/
     //隐藏状态栏
+    //SystemChrome.setEnabledSystemUIMode(
+     //             SystemUiMode.edgeToEdge);
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
     //WidgetsBinding.instance!.addObserver(this);
   }
@@ -915,7 +918,7 @@ class _TextCanvasState extends State<TextCanvas>
                 return true;
               }
               //await SystemChrome.setEnabledSystemUIMode(
-              //    SystemUiMode.edgeToEdge);
+              //    SystemUiMode.immersiveSticky);
               return true;
             }),
       ),
