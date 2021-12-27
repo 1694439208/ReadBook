@@ -96,8 +96,11 @@ class ChapterTextPainter extends StatefulWidget {
     this.offset = 0.0,
     this.dir = Dir.none,
     this.BackgroundColor,
+    this.pa,
+    this.BView,
   }) : super(key: key);
-
+  RepaintBoundary? BView;
+  Paging_algorithm? pa;
   String? Title1;
   String? text;
   String? Next_text;
@@ -113,6 +116,8 @@ class ChapterTextPainter extends StatefulWidget {
   TextStyle? style;
   Dir dir;
   Color? BackgroundColor;
+
+  bool IsViewList = false; //是否跳页ui
 
   @override
   _ChapterTextPainterState createState() => _ChapterTextPainterState();
@@ -179,72 +184,133 @@ class _ChapterTextPainterState extends State<ChapterTextPainter> {
     });
   }
 
+  void SetSwitchView(bool isview) {
+    //切换视图，阅读ui和跳页ui
+    setState(() {
+      widget.IsViewList = isview;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Stack(
-        children: [
-          Positioned(
-            top: 0,
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              padding: EdgeInsets.fromLTRB(5, 0, 5, 5),
-              child: Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(text: "${widget.Back_text_title}\n"),
-                    TextSpan(text: widget.Back_text!, style: widget.style),
-                  ],
+    if (widget.IsViewList) {
+      return Container(
+        //height: 500,
+        padding: EdgeInsets.all(10),
+        child: GridView.builder(
+            scrollDirection: Axis.vertical,
+            itemCount: widget.pa!.Titlenum.length,
+            //SliverGridDelegateWithFixedCrossAxisCount 构建一个横轴固定数量Widget
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                //横轴元素个数
+                crossAxisCount: 3,
+                //纵轴间距
+                mainAxisSpacing: 20.0,
+                //横轴间距
+                crossAxisSpacing: 10.0,
+                //子组件宽高长度比例
+                childAspectRatio: 0.7),
+            itemBuilder: (BuildContext context, int index) {
+              //Widget Function(BuildContext context, int index)
+              return Container(
+                padding: EdgeInsets.fromLTRB(5, 0, 5, 5),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Container(
+                    width: widget.width,
+                    child: Text.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(text: "${widget.Back_text_title}\n"),
+                          TextSpan(
+                              text: widget.Back_text!, style: widget.style),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-              decoration: new BoxDecoration(
-                  color: widget.BackgroundColor,
-                  borderRadius: BorderRadius.all(Radius.circular(5)),
-                  border: Border.all(color: Colors.grey),
-                  boxShadow: [
-                    //refer to :https://ninghao.net/video/6443
-                    BoxShadow(
-                        color: Colors.grey,
-                        offset: Offset(0.0, 2.0),
-                        blurRadius: 2.0,
-                        spreadRadius: 1.0),
-                  ]),
-            ),
-          ),
-          Positioned(
-            width: widget.width,
-            top: 0,
-            bottom: 0,
-            left: widget.offset,
-            child: Container(
-              padding: EdgeInsets.fromLTRB(5, 0, 5, 5),
-              child: Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(text: "${widget.text_title}\n"),
-                    TextSpan(text: widget.text!, style: widget.style),
-                  ],
+                decoration: new BoxDecoration(
+                    color: widget.BackgroundColor,
+                    borderRadius: BorderRadius.all(Radius.circular(5)),
+                    border: Border.all(color: Colors.grey),
+                    boxShadow: [
+                      //refer to :https://ninghao.net/video/6443
+                      BoxShadow(
+                          color: Colors.grey,
+                          offset: Offset(0.0, 1.0),
+                          blurRadius: 2.0,
+                          spreadRadius: 1.0),
+                    ]),
+              );
+            }),
+      );
+    } else {
+      return Container(
+        child: Stack(
+          children: [
+            Positioned(
+              top: 0,
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                padding: EdgeInsets.fromLTRB(5, 0, 5, 5),
+                child: Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(text: "${widget.Back_text_title}\n"),
+                      TextSpan(text: widget.Back_text!, style: widget.style),
+                    ],
+                  ),
                 ),
+                decoration: new BoxDecoration(
+                    color: widget.BackgroundColor,
+                    borderRadius: BorderRadius.all(Radius.circular(5)),
+                    border: Border.all(color: Colors.grey),
+                    boxShadow: [
+                      //refer to :https://ninghao.net/video/6443
+                      BoxShadow(
+                          color: Colors.grey,
+                          offset: Offset(0.0, 2.0),
+                          blurRadius: 2.0,
+                          spreadRadius: 1.0),
+                    ]),
               ),
-              decoration: new BoxDecoration(
-                  color: widget.BackgroundColor,
-                  borderRadius: BorderRadius.all(Radius.circular(5)),
-                  border: Border.all(color: Colors.grey),
-                  boxShadow: [
-                    //refer to :https://ninghao.net/video/6443
-                    BoxShadow(
-                        color: Colors.grey,
-                        offset: Offset(0.0, 2.0),
-                        blurRadius: 2.0,
-                        spreadRadius: 1.0),
-                  ]),
             ),
-          ),
-        ],
-      ),
-    );
+            Positioned(
+              width: widget.width,
+              top: 0,
+              bottom: 0,
+              left: widget.offset,
+              child: Container(
+                padding: EdgeInsets.fromLTRB(5, 0, 5, 5),
+                child: Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(text: "${widget.text_title}\n"),
+                      TextSpan(text: widget.text!, style: widget.style),
+                    ],
+                  ),
+                ),
+                decoration: new BoxDecoration(
+                    color: widget.BackgroundColor,
+                    borderRadius: BorderRadius.all(Radius.circular(5)),
+                    border: Border.all(color: Colors.grey),
+                    boxShadow: [
+                      //refer to :https://ninghao.net/video/6443
+                      BoxShadow(
+                          color: Colors.grey,
+                          offset: Offset(0.0, 2.0),
+                          blurRadius: 2.0,
+                          spreadRadius: 1.0),
+                    ]),
+              ),
+            ),
+            widget.BView!,
+          ],
+        ),
+      );
+    }
   }
 }
 
@@ -524,45 +590,6 @@ class _TextCanvas1State extends State<TextCanvas1>
             }
             log("请求成功");
             widget.TextBook = widget.pa!.This();
-            if (widget.BookView == null) {
-              widget.textKey = GlobalKey();
-              widget.BookView = ChapterTextPainter(
-                key: widget.textKey,
-                text: widget.TextBook,
-                Back_text: widget.pa!.Back(),
-                Next_text: widget.pa!.Next(),
-                text_title: widget.pa!.GetThinTitle(),
-                Next_text_title: widget.pa!.GetNextTitle(),
-                Back_text_title: widget.pa!.GetBackTitle(),
-                lineHeight: 27.0,
-                style: TextStyle(
-                  fontSize: BookConfig.GetFontSize(),
-                  color: BookConfig.GetFontColor(),
-                  //backgroundColor: BookConfig.GetBackgroundColor(),
-                ),
-                width: ScreenAdaptation.screenWidth + 10,
-                offset: widget.Xoffset,
-                dir: widget.dir,
-                BackgroundColor: BookConfig.GetBackgroundColor(),
-              );
-            } else {
-              //widget.textKey.currentState.SetOffet(dir, xoffset, btext, ntext)
-              widget.textKey!.currentState!.SetOffet(
-                  widget.dir,
-                  widget.Xoffset,
-                  widget.TextBook,
-                  widget.pa!.Back(),
-                  widget.pa!.Next(),
-                  widget.pa!.GetThinTitle(),
-                  widget.pa!.GetNextTitle(),
-                  widget.pa!.GetBackTitle(),
-                  TextStyle(
-                    fontSize: BookConfig.GetFontSize(),
-                    color: BookConfig.GetFontColor(),
-                    //backgroundColor: BookConfig.GetBackgroundColor(),
-                  ),
-                  BookConfig.GetBackgroundColor());
-            }
 
             var BView = RepaintBoundary(
                 child: GestureDetector(
@@ -575,6 +602,10 @@ class _TextCanvas1State extends State<TextCanvas1>
                 //双击弹出菜单
                 Scaffold.of(context).openDrawer();
                 print('双击: ');
+              },
+              onTap: () {
+                widget.textKey!.currentState!.SetSwitchView(true);
+                print('手指单击');
               },
               onTapDown: (detail) {
                 //按下弹出章节菜单
@@ -629,6 +660,9 @@ class _TextCanvas1State extends State<TextCanvas1>
                 widget.PointStart = detail.globalPosition;
               },
               onHorizontalDragUpdate: (detail) {
+                if (widget.textKey!.currentState!.widget.IsViewList) {
+                  return;
+                }
                 //正在拖动
                 var offset = 0.0; //拖动偏移
                 if (widget.dir == Dir.none) {
@@ -656,6 +690,9 @@ class _TextCanvas1State extends State<TextCanvas1>
                 }
               },
               onHorizontalDragEnd: (detail) {
+                if (widget.textKey!.currentState!.widget.IsViewList) {
+                  return;
+                }
                 //拖动结束
                 if (widget.dir == Dir.left) {
                   if (detail.velocity.pixelsPerSecond.dx < 350 &&
@@ -736,10 +773,51 @@ class _TextCanvas1State extends State<TextCanvas1>
                 print('停止拖动: ${detail}');
               },
             ));
+            if (widget.BookView == null) {
+              widget.textKey = GlobalKey();
+              widget.BookView = ChapterTextPainter(
+                key: widget.textKey,
+                text: widget.TextBook,
+                Back_text: widget.pa!.Back(),
+                Next_text: widget.pa!.Next(),
+                text_title: widget.pa!.GetThinTitle(),
+                Next_text_title: widget.pa!.GetNextTitle(),
+                Back_text_title: widget.pa!.GetBackTitle(),
+                lineHeight: 27.0,
+                style: TextStyle(
+                  fontSize: BookConfig.GetFontSize(),
+                  color: BookConfig.GetFontColor(),
+                  //backgroundColor: BookConfig.GetBackgroundColor(),
+                ),
+                width: ScreenAdaptation.screenWidth + 10,
+                offset: widget.Xoffset,
+                dir: widget.dir,
+                BackgroundColor: BookConfig.GetBackgroundColor(),
+                pa: widget.pa,
+                BView: BView,
+              );
+            } else {
+              //widget.textKey.currentState.SetOffet(dir, xoffset, btext, ntext)
+              widget.textKey!.currentState!.SetOffet(
+                  widget.dir,
+                  widget.Xoffset,
+                  widget.TextBook,
+                  widget.pa!.Back(),
+                  widget.pa!.Next(),
+                  widget.pa!.GetThinTitle(),
+                  widget.pa!.GetNextTitle(),
+                  widget.pa!.GetBackTitle(),
+                  TextStyle(
+                    fontSize: BookConfig.GetFontSize(),
+                    color: BookConfig.GetFontColor(),
+                    //backgroundColor: BookConfig.GetBackgroundColor(),
+                  ),
+                  BookConfig.GetBackgroundColor());
+            }
             return Stack(
               children: [
                 widget.BookView!,
-                BView,
+                //BView,
               ],
             );
         }
