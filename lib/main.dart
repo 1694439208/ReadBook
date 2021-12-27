@@ -31,6 +31,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     //final wordPair = WordPair.random();
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       //debugShowCheckedModeBanner: false,
       title: '海绵阅读器',
       builder: BotToastInit(),

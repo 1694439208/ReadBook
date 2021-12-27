@@ -142,7 +142,7 @@ class BookConfig {
   //获取书架信息
   static List<BookPage> GetBookGroup() {
     var BookGroupText = preferences.getString("BookGroup");
-    var text = BookGroupText ??
+    var text = BookGroupText ??"[]";
         """
     [
       {

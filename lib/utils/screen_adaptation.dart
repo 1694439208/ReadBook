@@ -33,7 +33,7 @@ class ScreenAdaptation {
 
     statusBarHeight = mediaQueryData.padding.top;
     ScreenAdaptation.screenHeight =
-        mediaQueryData.size.height - statusBarHeight - 20;
+        mediaQueryData.size.height - statusBarHeight - 38;
     ScreenAdaptation.screenWidth = mediaQueryData.size.width - 10;
 //    double size =
 //        mediaQueryData.size.longestSide * mediaQueryData.devicePixelRatio;

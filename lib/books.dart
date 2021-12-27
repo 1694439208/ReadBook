@@ -16,6 +16,7 @@ import 'package:photo_view/photo_view.dart';
 
 import 'Book/CoverChild.dart';
 import 'Book/text_canvas.dart';
+import 'Book/text_canvas_widget.dart';
 import 'BookType/PageAbs.dart';
 import 'Photo/Photo.dart';
 import 'ReadingContainer.dart';
@@ -86,9 +87,7 @@ class _RandomWordsState extends State<RandomWords> {
                     child: CircleAvatar(
                       radius: 40,
                       backgroundColor: Colors.transparent,
-                      backgroundImage: NetworkImage(
-                        'https://i.loli.net/2020/01/21/4t5hLOoF3YeKSHT.png',
-                      ),
+                      backgroundImage: ExactAssetImage('images/back.png'),
                     ),
                   ),
                 ),
@@ -470,7 +469,7 @@ class _RandomWordsState extends State<RandomWords> {
         new MaterialPageRoute<void>(
           // 新增如下20行代码 ...
           builder: (BuildContext context) {
-            return TextCanvas(pair as BTXT, Index);
+            return TextCanvas1(pair as BTXT, Index);
           },
         ), // ... 新增代码结束
       );
