@@ -52,6 +52,11 @@ dependencies:
   #charset_converter: ^2.0.0
   #gbk编码器支持
   fast_gbk: ^1.0.0
+  #可滚动列表
+  scroll_to_index: ^2.1.1
+  #事件通知
+  event_bus: ^2.0.0
+  
   #自动调整text字体大小
   #auto_size_text: ^3.0.0
   #屏幕亮度

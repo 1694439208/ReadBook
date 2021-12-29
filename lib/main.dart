@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'dart:developer';
+import 'dart:ffi';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,8 @@ import 'package:flutter/services.dart';
 import 'books.dart';
 import 'utils/GlobalConfig.dart';
 import 'package:bot_toast/bot_toast.dart';
+
+import 'utils/ThemeChanger.dart';
 
 void main() => realRunApp();
 
@@ -26,20 +29,45 @@ Future<void> loadAsync() async {
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     //final wordPair = WordPair.random();
+    return AppTheme();
+  }
+}
+
+class AppTheme extends StatefulWidget {
+  AppTheme({Key? key}) : super(key: key);
+  final _themeGlobalKey = new GlobalKey(debugLabel: 'app_theme');
+  Brightness brightness = Brightness.light;
+  @override
+  AppThemeState createState() => AppThemeState();
+}
+
+class AppThemeState extends State<AppTheme> {
+  @override
+  void initState() {
+    EventBusUtils.getInstance()!.on<Brightness>().listen((event) {
+      setState(() {
+        widget.brightness = event;
+      });
+      log("message:${event}");
+    });
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       //debugShowCheckedModeBanner: false,
-      title: '海绵阅读器',
+      title: '海绵阅读器${widget.brightness}',
       builder: BotToastInit(),
       navigatorObservers: [BotToastNavigatorObserver()],
       theme: ThemeData(
-        primarySwatch: Colors.brown,
-        primaryColor: Colors.white,
-      ), //设置App主题,
+          primarySwatch: Colors.brown,
+          primaryColor: Colors.white,
+          brightness: widget.brightness), //设置App主题,
       home: FutureBuilder(
         future: loadAsync(),
         builder: (BuildContext context, AsyncSnapshot snapshot) {

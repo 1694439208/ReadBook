@@ -21,6 +21,7 @@ import 'BookType/PageAbs.dart';
 import 'Photo/Photo.dart';
 import 'ReadingContainer.dart';
 import 'utils/GlobalConfig.dart';
+import 'utils/ThemeChanger.dart';
 import 'utils/screen_adaptation.dart';
 import 'dart:math' as math;
 
@@ -90,6 +91,17 @@ class _RandomWordsState extends State<RandomWords> {
                       backgroundImage: ExactAssetImage('images/back.png'),
                     ),
                   ),
+                ),
+                SwitchListTile(
+                  value: Theme.of(context).brightness == Brightness.dark,
+                  title: Text("切换主题模式"),
+                  onChanged: (state) {
+                    setState(() {
+                      state
+                          ? EventBusUtils.getInstance()!.fire(Brightness.light)
+                          : EventBusUtils.getInstance()!.fire(Brightness.light);
+                    });
+                  },
                 ),
                 new ListTile(
                   title: new Text("书架"),
@@ -406,8 +418,8 @@ class _RandomWordsState extends State<RandomWords> {
             _CardClick(pair, context, Index);
           },
           child: Card(
-            color: Color.fromARGB(
-                255, 243, 240, 255), //Color.fromARGB(255, 239, 244, 255),
+            //color: Color.fromARGB(//夜间模式
+            //    255, 243, 240, 255), //Color.fromARGB(255, 239, 244, 255),
             //z轴的高度，设置card的阴影
             elevation: 8.0,
             //设置shape，这里设置成了R角
@@ -497,7 +509,7 @@ class _RandomWordsState extends State<RandomWords> {
       heightFactor: 1.3,
       child: Container(
           decoration: new BoxDecoration(
-              color: Colors.white,
+              //color: Colors.white,//夜间模式
               borderRadius: new BorderRadius.only(
                   topLeft: const Radius.circular(5.0),
                   topRight: const Radius.circular(5.0))),

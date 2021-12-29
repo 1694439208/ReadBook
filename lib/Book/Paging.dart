@@ -129,6 +129,7 @@ class Paging_algorithm {
   //设置章节
   void SetChapterIndex(int index) {
     if (index < ChapterList.length && index >= 0) {
+      CreateChapIndex(index, width!, height!, style!); //返回下一章之前先判断计算一下分页
       ChapterIndex = index;
     }
   }
