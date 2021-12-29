@@ -283,7 +283,8 @@ class _TextCanvas1State extends State<TextCanvas1>
         widget.style,
         27.0);*/
     //BookConfig.GetBookGroup();
-    bool isMove = false;//是否移动
+    bool isMove = false; //是否移动
+    bool isDown = false; //是否按下
     var lastPopTime = DateTime.now();
 
     var Size = MediaQuery.of(context).size;
@@ -312,25 +313,62 @@ class _TextCanvas1State extends State<TextCanvas1>
 
             var BView = RepaintBoundary(
               child: Listener(
-                onPointerMove: (detail) {
-                  isMove = true;
+                /*onPointerDown:(detail){
+                  isDown = true;
+                },*/
+                /*onPointerMove: (detail) {
+                  if (detail.delta != Offset.zero) {//如果移动
+                    isMove = true;
+                  }
+                  log("detail.delta:${detail.delta}");
                 },
                 onPointerUp: (detail) {
                   if (!isMove) {
+                    
+                  }
+                  isMove = false;
+                  //isDown = false;
+                },*/
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  child: Container(
+                    alignment: Alignment(0.5, 0.5),
+                    color: Colors.transparent,
+                  ),
+                  onDoubleTap: () {
+                    //双击弹出百分比进度选择
+
+                    print('双击: ');
+                  },
+                  onLongPressStart: (detail) {
+                    //长按
+                    //长按会触发下一页，所以这里跳转到上一页
+                    
+                    widget.textKey!.currentState!.SetSwitchView(true);
+                    widget.pa!.sub_page();
+                  },
+                  onPanDown:(detail){
+                    widget.PointStart = detail.globalPosition;
+                  },
+                  onPanCancel: () {
+                    //按压回调
+                    //Scaffold.of(context).openDrawer();
+                    //单击页面任何内容下一页
                     print('单击：${lastPopTime}');
+                    var detail = widget.PointStart;
                     //lastPopTime = DateTime.now();
                     //模拟单击屏幕中间唤出菜单
                     //detail.localPosition
                     var x = ScreenAdaptation.screenWidth / 3;
                     var y = ScreenAdaptation.screenHeight / 3;
-                    if (detail.localPosition.dy > y &&
-                        detail.localPosition.dy < y * 2 &&
-                        detail.localPosition.dx > x &&
-                        detail.localPosition.dx < x * 2) {
+                    if (detail.dy > y &&
+                        detail.dy < y * 2 &&
+                        detail.dx > x &&
+                        detail.dx < x * 2) {
                       //var aa = Scaffold.of(context);
                       Scaffold.of(context).openDrawer();
                     } else {
-                      print('SetAdimn1${detail.localPosition}');
+                      print('SetAdimn1${detail}');
                       SetAdimn(ScreenAdaptation.screenWidth, 0.0, Dir.left, 0.0,
                           () {
                         //widget.textKey!.currentState!
@@ -357,76 +395,134 @@ class _TextCanvas1State extends State<TextCanvas1>
                         }
                       });
                     }
-                  }
-                  isMove = false;
-                },
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  child: Container(
-                    alignment: Alignment(0.5, 0.5),
-                    color: Colors.transparent,
-                  ),
-                  onDoubleTap: () {
-                    //双击弹出百分比进度选择
-                    widget.textKey!.currentState!.SetSwitchView(true);
-                    print('双击: ');
-                  },
-                  onTap: () {
-                    //Scaffold.of(context).openDrawer();
-                    //单击页面任何内容下一页
                     print('手指单击');
                   },
-                  onTapDown: (detail) {
-                    //按下弹出章节菜单
-                    //判断屏幕三分之一中间可点击弹出
-                    /*var x = ScreenAdaptation.screenWidth / 3;
-                  var y = ScreenAdaptation.screenHeight / 3;
-                  if (detail.globalPosition.dy > y &&
-                      detail.globalPosition.dy < y * 2 &&
-                      detail.globalPosition.dx > x &&
-                      detail.globalPosition.dx < x * 2) {
-                    var aa = Scaffold.of(context);
-                    Scaffold.of(context).openDrawer();
-                  }*/
-                    print(
-                        '手指按下:${detail.globalPosition}, ${detail.localPosition}');
+                  onPanStart: (detail) {
+                    //按压拖动开始回调
+                    //按压开始，不能与 onScale ，onVerticalDrag，onHorizontalDrag，同时使用
+                    widget.PointStart = detail.globalPosition;
                   },
-                  onTapUp: (detail) {
-                    print('手指离开屏幕 ${detail.globalPosition}');
-                  }, //y
-                  onVerticalDragStart: (detail) {
-                    //PointStart = detail.globalPosition;
+                  onPanUpdate:(detail){
+                    //按压拖动回调
+                    if (widget.textKey!.currentState!.widget.IsViewList) {
+                      return;
+                    }
+                    //正在拖动
+                    var offset = 0.0; //拖动偏移
+                    if (widget.dir == Dir.none) {
+                      if (detail.globalPosition.dx < widget.PointStart.dx) {
+                        widget.dir = Dir.left;
+                      } else if (detail.globalPosition.dx >
+                          widget.PointStart.dx) {
+                        widget.dir = Dir.right;
+                      }
+                    } else {
+                      if (widget.dir == Dir.left) {
+                        offset = detail.globalPosition.dx; //Size.width
+                        //log("PointStart:${widget.PointStart.dx - offset},detail:${offset}");
+                        offset =
+                            Size.width - 10 - (widget.PointStart.dx - offset);
+                      } else if (widget.dir == Dir.right) {
+                        //offset = (widget.PointStart.dx - offset);
+                        offset = detail.globalPosition.dx;
+                        offset = offset - widget.PointStart.dx;
+                        //log("PointStart:${offset - widget.PointStart.dx},detail:${offset}");
+                      }
+                      //print(
+                      //    'offset:${offset},x: ${detail.globalPosition},widget.dir:${widget.dir}');
+                      setState(() {
+                        widget.Xoffset = offset;
+                      });
+                    }
                   },
-                  onVerticalDragUpdate: (detail) {
-                    /*var offset = 0.0; //拖动偏移
-                  if (widget.dir == Dir.none) {
-                    if (detail.globalPosition.dy > PointStart.dy) {
-                      widget.dir = Dir.bottom;
-                    } else if (detail.globalPosition.dy < PointStart.dy) {
-                      widget.dir = Dir.top;
+                  onPanEnd:(detail){
+                    //按压拖动结束回调
+                    if (widget.textKey!.currentState!.widget.IsViewList) {
+                      return;
                     }
-                  } else {
-                    if (widget.dir == Dir.bottom) {
-                      offset = detail.globalPosition.dy;
-                    } else if (widget.dir == Dir.top) {
-                      offset = Size.height - detail.globalPosition.dy;
+                    //拖动结束
+                    log("拖动结束:${widget.dir}");
+                    if (widget.dir == Dir.left) {
+                      if (detail.velocity.pixelsPerSecond.dx < 350 &&
+                          widget.Xoffset > ScreenAdaptation.screenWidth - 6) {
+                        setState(() {
+                          widget.dir = Dir.none;
+                          widget.Xoffset = 0.0;
+                          //log("animation.value:${animation.value},widget.dir:${widget.dir}");
+                        });
+                        return;
+                      }
                     }
-                    //print(
-                    //    'offset:${offset},x: ${detail.globalPosition},widget.dir:${widget.dir}');
-                    setState(() {
-                      widget.Xoffset = offset;
+                    if (widget.dir == Dir.right) {
+                      if (detail.velocity.pixelsPerSecond.dx < 350 &&
+                          widget.Xoffset < 6) {
+                        setState(() {
+                          widget.dir = Dir.none;
+                          widget.Xoffset = 0.0;
+                          //log("animation.value:${animation.value},widget.dir:${widget.dir}");
+                        });
+                        return;
+                        //widget.dir = Dir.left;
+                      }
+                    }
+
+                    var begin = 0.0;
+                    var end = 0.0;
+                    Dir DD = Dir.none;
+                    if (widget.dir == Dir.left) {
+                      begin = widget.Xoffset;
+                      end = 0.0;
+                      DD = Dir.left;
+                    } else if (widget.dir == Dir.right) {
+                      begin = widget.Xoffset;
+                      end = ScreenAdaptation.screenWidth;
+                      DD = Dir.right;
+                    }
+                    log("拖动结束1:${widget.dir}");
+
+                    SetAdimn(begin, end, DD, detail.velocity.pixelsPerSecond.dx,
+                        () {
+                      setState(() {
+                        widget.dir = DD;
+                        widget.Xoffset = animation.value;
+                        //log("animation.value:${animation.value},widget.dir:${widget.dir}");
+                      });
+                    }, (state) {
+                      //当动画结束时执行动画反转
+                      if (state == AnimationStatus.completed) {
+                        log("动画结束:${widget.dir}");
+                        if (DD == Dir.left) {
+                          if (detail.velocity.pixelsPerSecond.dx >
+                                  500 || //detail.velocity.pixelsPerSecond.dx
+                              widget.Xoffset <=
+                                  ScreenAdaptation.screenWidth / 2) {
+                            //ScreenAdaptation.screenWidth / 2
+                            //下一页
+                            widget.pa!.add_page();
+                          }
+                        }
+                        if (DD == Dir.right) {
+                          if (detail.velocity.pixelsPerSecond.dx > 500 ||
+                              widget.Xoffset >=
+                                  ScreenAdaptation.screenWidth / 2) {
+                            //上一页
+                            widget.pa!.sub_page();
+                          }
+                        }
+                        DD = Dir.none;
+                        widget.dir = Dir.none;
+                        widget.Xoffset = 0.0;
+                        //controller.reverse();
+                        //当动画在开始处停止再次从头开始执行动画
+                      } else if (state == AnimationStatus.dismissed) {
+                        //controller.forward();
+                      }
                     });
-                  }*/
-                  },
-                  onVerticalDragEnd: (detail) {
-                    /*setState(() {
-                    widget.dir = Dir.none;
-                    widget.Xoffset = 0;
-                  });*/
-                    //print('停止拖动: ${detail}');
+                    log("2message:${widget.dir}");
+                    print('停止拖动: ${detail}');
                   },
                   //x
-                  onHorizontalDragStart: (detail) {
+                  /*onHorizontalDragStart: (detail) {
                     widget.PointStart = detail.globalPosition;
                   },
                   onHorizontalDragUpdate: (detail) {
@@ -546,7 +642,7 @@ class _TextCanvas1State extends State<TextCanvas1>
                     });
                     log("2message:${widget.dir}");
                     print('停止拖动: ${detail}');
-                  },
+                  },*/
                 ),
               ),
             );

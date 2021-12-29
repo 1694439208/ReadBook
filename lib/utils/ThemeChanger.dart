@@ -1,13 +1,13 @@
-import 'package:event_bus/event_bus.dart';
+import 'package:flutter/material.dart';
 
-///event bus
-class EventBusUtils {
-  static EventBus? _eventBus;
+class AppInfoProvider with ChangeNotifier {
+  // 这里最好要分开写
+  Brightness _brightness = Brightness.light;
 
-  static EventBus? getInstance() {
-    if (_eventBus == null) {
-      _eventBus = EventBus();
-    }
-    return _eventBus;
+  Brightness get brightness => _brightness;
+
+  void setTheme(Brightness themeColor) {
+    _brightness = themeColor;
+    notifyListeners();
   }
 }

@@ -13,6 +13,7 @@ import 'package:flutter_application_1/utils/Alert.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_swipe_action_cell/flutter_swipe_action_cell.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:provider/provider.dart';
 
 import 'Book/CoverChild.dart';
 import 'Book/text_canvas.dart';
@@ -55,11 +56,6 @@ class _RandomWordsState extends State<RandomWords> {
   @override
   Widget build(BuildContext context) {
     ScreenAdaptation.init(context);
-    BotToast.showText(
-      text: "阅读界面双击唤出菜单,单击浏览页",
-      duration: const Duration(seconds: 3),
-      textStyle: const TextStyle(fontSize: 15, color: Colors.white),
-    );
     return Scaffold(
       //extendBodyBehindAppBar: true,
       //主ui
@@ -93,13 +89,13 @@ class _RandomWordsState extends State<RandomWords> {
                   ),
                 ),
                 SwitchListTile(
-                  value: Theme.of(context).brightness == Brightness.dark,
-                  title: Text("切换主题模式"),
+                  value: Theme.of(context).brightness != Brightness.dark,
+                  title: Text("切换主题"),
                   onChanged: (state) {
                     setState(() {
                       state
-                          ? EventBusUtils.getInstance()!.fire(Brightness.light)
-                          : EventBusUtils.getInstance()!.fire(Brightness.light);
+                          ? Provider.of<AppInfoProvider>(context, listen: false).setTheme(Brightness.light)
+                          : Provider.of<AppInfoProvider>(context, listen: false).setTheme(Brightness.dark);
                     });
                   },
                 ),
@@ -418,8 +414,8 @@ class _RandomWordsState extends State<RandomWords> {
             _CardClick(pair, context, Index);
           },
           child: Card(
-            //color: Color.fromARGB(//夜间模式
-            //    255, 243, 240, 255), //Color.fromARGB(255, 239, 244, 255),
+            color: Color.fromARGB(//夜间模式
+                255, 243, 240, 255), //Color.fromARGB(255, 239, 244, 255),
             //z轴的高度，设置card的阴影
             elevation: 8.0,
             //设置shape，这里设置成了R角
@@ -509,7 +505,7 @@ class _RandomWordsState extends State<RandomWords> {
       heightFactor: 1.3,
       child: Container(
           decoration: new BoxDecoration(
-              //color: Colors.white,//夜间模式
+              color: Colors.white,//夜间模式
               borderRadius: new BorderRadius.only(
                   topLeft: const Radius.circular(5.0),
                   topRight: const Radius.circular(5.0))),

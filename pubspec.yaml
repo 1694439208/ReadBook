@@ -56,6 +56,8 @@ dependencies:
   scroll_to_index: ^2.1.1
   #事件通知
   event_bus: ^2.0.0
+  #状态管理
+  provider: ^6.0.1
   
   #自动调整text字体大小
   #auto_size_text: ^3.0.0
