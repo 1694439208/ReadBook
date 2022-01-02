@@ -49,8 +49,12 @@ android {
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
+        //main.jniLibs.srcDirs += "src/main/jniLibs0"
     }
-
+    sourceSets.main {
+        println 'A message which is logged at QUIET level:' + jniLibs.srcDirs
+        //jniLibs.srcDirs += files("src/main/jniLibs")
+    }
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId "com.hmbb.yuyue"
@@ -58,6 +62,11 @@ android {
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+        ndk {
+            moduleName = "libReadUtils"
+            //abiFilters "x86_64", "x86"//, "armeabi-v7a", "arm64-v8a", "armeabi"
+            println 'abiFilters:' + abiFilters
+        }
     }
     signingConfigs {
         release {
@@ -67,12 +76,22 @@ android {
             storePassword keystoreProperties['storePassword']
         }
     }
+    
     buildTypes {
         release {
             signingConfig signingConfigs.release
             minifyEnabled true
             useProguard true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+            /*ndk {
+                if (project.hasProperty('target-platform') &&
+                        project.property('target-platform') == 'android-arm64') {
+                    abiFilters 'arm64-v8a'
+                } else {
+                    abiFilters 'armeabi-v7a'
+                }
+            }*/
 
         }
     }

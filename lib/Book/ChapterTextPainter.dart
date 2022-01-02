@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/utils/screen_adaptation.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
 import 'dart:developer';
 
@@ -398,6 +399,7 @@ class ChapterTextPainterState extends State<ChapterTextPainter> {
           preferPosition: AutoScrollPosition.begin);
     } else {
       WidgetView = Container(
+        //height: ScreenAdaptation.screenHeight,
         key: ValueKey<int>(1),
         child: Stack(
           children: [
@@ -440,15 +442,19 @@ class ChapterTextPainterState extends State<ChapterTextPainter> {
               left: widget.offset,
               child: Container(
                 padding: EdgeInsets.fromLTRB(5, 0, 5, 5),
-                child: Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(
-                          text: "${widget.text_title}\n",
-                          style: TextStyle(
-                              fontSize: 10, color: widget.style!.color)),
-                      TextSpan(text: widget.text!, style: widget.style),
-                    ],
+                child: Scrollbar(
+                  child: Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                            text: "${widget.text_title}\n",
+                            style: TextStyle(
+                                fontSize: 10, color: widget.style!.color)),
+                        TextSpan(text: widget.text!, style: widget.style),
+                      ],
+                    ),
+                    textAlign: TextAlign.left,
+                    textDirection: TextDirection.ltr,
                   ),
                 ),
                 decoration: new BoxDecoration(

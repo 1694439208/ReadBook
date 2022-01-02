@@ -54,10 +54,16 @@ dependencies:
   fast_gbk: ^1.0.0
   #可滚动列表
   scroll_to_index: ^2.1.1
-  #事件通知
-  event_bus: ^2.0.0
   #状态管理
   provider: ^6.0.1
+  #文本编码探测
+  flutter_charset_detector: ^1.0.1
+  #编码转换
+  charset_converter: ^2.0.0
+  #字符串分割
+  #string_splitter: ^1.0.0+1
+  #事件通知
+  #event_bus: ^2.0.0
   
   #自动调整text字体大小
   #auto_size_text: ^3.0.0

@@ -1,9 +1,12 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'dart:typed_data';
 import 'dart:ui';
 
 //import 'package:device_display_brightness/device_display_brightness.dart';
+import 'package:bot_toast/bot_toast.dart';
+import 'package:charset_converter/charset_converter.dart';
 import 'package:fast_gbk/fast_gbk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,9 +14,11 @@ import 'package:flutter_application_1/Book/Paging.dart';
 import 'package:flutter_application_1/BookType/Txt.dart';
 import 'package:flutter_application_1/utils/GlobalConfig.dart';
 import 'package:flutter_application_1/utils/screen_adaptation.dart';
+import 'package:flutter_charset_detector/flutter_charset_detector.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
 
 import 'ChapterTextPainter.dart';
+import '../utils/LibMain.dart';
 
 //import 'package:seek_book/utils/screen_adaptation.dart';
 
@@ -132,12 +137,31 @@ class _TextCanvas1State extends State<TextCanvas1>
         });*/
 
         var f = File(widget.bt!.src);
+
+        ///List<String> charsets = await CharsetConverter.availableCharsets();
         try {
-          str = await f.readAsString();
-        } catch (e) {
-          str = "TXT只支持utf8编码";
+          ///Uint8List byte = f.readAsBytesSync();
           var stream = f.openRead();
-          str = await stream.transform(gbk.decoder).join();
+          str = await stream.transform(utf8.decoder).join();
+          //////str = String.fromCharCodes(byte);
+          //////libReadUtils.getInstance();
+          //////var aa = libReadUtils.Split(byte, r"(\s|\n)(第)([\u4e00-\u9fa5a-zA-Z0-9]{1,7})(章)(.+|\n)");
+          //////BotToast.showText(text: 'aaa:${aa}');
+          /*var result = await CharsetDetector.autoDecode(byte.sublist(0,byte.length>500?500:byte.length));
+          if (charsets.contains(result.charset)) {
+            str = await CharsetConverter.decode(result.charset, byte)??"编码转换失败:${result.charset}";
+          } else {
+            str = "TXT只支持utf8编码";
+          }*/
+          //String s = new String.fromCharCodes(inputAsUint8List);
+          //str = await f.readAsString();
+        } catch (e) {
+          try {
+            var stream = f.openRead();
+            str = await stream.transform(gbk.decoder).join();
+          } catch (e) {
+            str = "TXT只支持utf8,gbk编码";
+          }
         }
         //str = String.fromCharCodes(byte);
         //print("object:${str.length},widget.bt!.src:${widget.bt!.src}");
@@ -343,11 +367,11 @@ class _TextCanvas1State extends State<TextCanvas1>
                   onLongPressStart: (detail) {
                     //长按
                     //长按会触发下一页，所以这里跳转到上一页
-                    
+
                     widget.textKey!.currentState!.SetSwitchView(true);
                     widget.pa!.sub_page();
                   },
-                  onPanDown:(detail){
+                  onPanDown: (detail) {
                     widget.PointStart = detail.globalPosition;
                   },
                   onPanCancel: () {
@@ -402,7 +426,7 @@ class _TextCanvas1State extends State<TextCanvas1>
                     //按压开始，不能与 onScale ，onVerticalDrag，onHorizontalDrag，同时使用
                     widget.PointStart = detail.globalPosition;
                   },
-                  onPanUpdate:(detail){
+                  onPanUpdate: (detail) {
                     //按压拖动回调
                     if (widget.textKey!.currentState!.widget.IsViewList) {
                       return;
@@ -435,7 +459,7 @@ class _TextCanvas1State extends State<TextCanvas1>
                       });
                     }
                   },
-                  onPanEnd:(detail){
+                  onPanEnd: (detail) {
                     //按压拖动结束回调
                     if (widget.textKey!.currentState!.widget.IsViewList) {
                       return;

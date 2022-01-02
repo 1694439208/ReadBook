@@ -22,6 +22,7 @@ import 'BookType/PageAbs.dart';
 import 'Photo/Photo.dart';
 import 'ReadingContainer.dart';
 import 'utils/GlobalConfig.dart';
+import 'utils/LibMain.dart';
 import 'utils/ThemeChanger.dart';
 import 'utils/screen_adaptation.dart';
 import 'dart:math' as math;

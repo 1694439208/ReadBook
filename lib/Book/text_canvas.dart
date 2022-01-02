@@ -82,8 +82,9 @@ class ChapterTextPainter extends CustomPainter {
         textDirection: TextDirection.ltr);
     textPainter.layout(maxWidth: argData.width!);
 
-    TextSelection selection =
-        TextSelection(baseOffset: 0, extentOffset: tempStr.length);
+    //TextSelection selection =
+    //    TextSelection(baseOffset: 0, extentOffset: tempStr.length);
+    
     // get a list of TextBoxes (Rects)  computeLineMetrics
     //List<TextBox> boxes = textPainter.getBoxesForSelection(selection);
     //var LineList = textPainter.computeLineMetrics();
