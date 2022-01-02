@@ -6,6 +6,7 @@ import 'package:scroll_to_index/scroll_to_index.dart';
 import 'dart:developer';
 
 import 'Paging.dart';
+import 'ReadText.dart';
 
 enum Dir { left, top, right, bottom, none }
 
@@ -92,6 +93,7 @@ class ChapterTextPainter extends StatefulWidget {
     this.BackgroundColor,
     this.pa,
     this.BView,
+    this.height,
   }) : super(key: key);
   RepaintBoundary? BView;
   Paging_algorithm? pa;
@@ -105,6 +107,7 @@ class ChapterTextPainter extends StatefulWidget {
   String? Back_text_title;
 
   double? width;
+  double? height;
   double? lineHeight;
   double? offset;
   TextStyle? style;
@@ -304,7 +307,16 @@ class ChapterTextPainterState extends State<ChapterTextPainter> {
                                       fit: BoxFit.scaleDown,
                                       child: Container(
                                         width: widget.width,
-                                        child: Text.rich(
+                                        height: widget.height,
+                                        child: CustomPaint(
+                                          painter: ReadText(
+                                            Title: "${widget.Back_text_title}",
+                                            Contont: widget.pa!.GetText(
+                                                index, widget.pa!.ChapterIndex),
+                                            width: widget.width! - 10,
+                                            style: widget.style,
+                                          ),
+                                        ) /*Text.rich(
                                           TextSpan(
                                             children: [
                                               TextSpan(
@@ -318,7 +330,8 @@ class ChapterTextPainterState extends State<ChapterTextPainter> {
                                                   style: widget.style),
                                             ],
                                           ),
-                                        ),
+                                        )*/
+                                        ,
                                       ),
                                     ),
                                     decoration: new BoxDecoration(
@@ -395,10 +408,16 @@ class ChapterTextPainterState extends State<ChapterTextPainter> {
               return false;
             }),
       );
-      controller.scrollToIndex(widget.pa!.page,
-          preferPosition: AutoScrollPosition.begin);
+      if (widget._sliderchapterValue.toInt() == widget.chapterindex) {
+        controller.scrollToIndex(widget.pa!.page,
+            preferPosition: AutoScrollPosition.begin);
+      }else{
+        controller.scrollToIndex(0,
+            preferPosition: AutoScrollPosition.begin);
+      }
     } else {
       WidgetView = Container(
+        //width: widget.width,
         //height: ScreenAdaptation.screenHeight,
         key: ValueKey<int>(1),
         child: Stack(
@@ -410,7 +429,14 @@ class ChapterTextPainterState extends State<ChapterTextPainter> {
               right: 0,
               child: Container(
                 padding: EdgeInsets.fromLTRB(5, 0, 5, 5),
-                child: Text.rich(
+                child: CustomPaint(
+                  painter: ReadText(
+                    Title: "${widget.Back_text_title}",
+                    Contont: widget.Back_text!,
+                    width: widget.width! - 10,
+                    style: widget.style,
+                  ),
+                ) /*Text.rich(
                   TextSpan(
                     children: [
                       TextSpan(
@@ -420,7 +446,8 @@ class ChapterTextPainterState extends State<ChapterTextPainter> {
                       TextSpan(text: widget.Back_text!, style: widget.style),
                     ],
                   ),
-                ),
+                )*/
+                ,
                 decoration: new BoxDecoration(
                     color: widget.BackgroundColor,
                     borderRadius: BorderRadius.all(Radius.circular(3)),
@@ -442,8 +469,14 @@ class ChapterTextPainterState extends State<ChapterTextPainter> {
               left: widget.offset,
               child: Container(
                 padding: EdgeInsets.fromLTRB(5, 0, 5, 5),
-                child: Scrollbar(
-                  child: Text.rich(
+                child: CustomPaint(
+                  painter: ReadText(
+                    Title: "${widget.text_title}",
+                    Contont: widget.text!,
+                    width: widget.width! - 10,
+                    style: widget.style,
+                  ),
+                ) /*Text.rich(
                     TextSpan(
                       children: [
                         TextSpan(
@@ -455,8 +488,8 @@ class ChapterTextPainterState extends State<ChapterTextPainter> {
                     ),
                     textAlign: TextAlign.left,
                     textDirection: TextDirection.ltr,
-                  ),
-                ),
+                  )*/
+                ,
                 decoration: new BoxDecoration(
                     color: widget.BackgroundColor,
                     borderRadius: BorderRadius.all(Radius.circular(3)),

@@ -692,6 +692,7 @@ class _TextCanvas1State extends State<TextCanvas1>
                 BackgroundColor: BookConfig.GetBackgroundColor(),
                 pa: widget.pa,
                 BView: BView,
+                height: ScreenAdaptation.screenHeight,
               );
             } else {
               //widget.textKey.currentState.SetOffet(dir, xoffset, btext, ntext)
