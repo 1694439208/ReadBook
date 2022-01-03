@@ -497,7 +497,7 @@ class ChapterTextPainterState extends State<ChapterTextPainter> {
                     boxShadow: [
                       //refer to :https://ninghao.net/video/6443
                       BoxShadow(
-                          color: widget.BackgroundColor!,
+                          color:  Colors.black.withAlpha(50),
                           offset: Offset(0.0, 2.0),
                           blurRadius: 2.0,
                           spreadRadius: 1.0),

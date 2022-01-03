@@ -44,7 +44,7 @@ dependencies:
   #弹窗
   bot_toast: ^4.0.1
   #文件选择
-  file_picker: ^4.3.0
+  #file_picker: ^4.3.0
   #点击展开菜单
   flutter_speed_dial: ^5.0.0+1
   #侧滑删除组件
@@ -60,6 +60,10 @@ dependencies:
   flutter_charset_detector: ^1.0.1
   #编码转换
   charset_converter: ^2.0.0
+  #目录遍历
+  path_provider: ^2.0.8
+  #动态权限申请
+  permission_handler: ^8.3.0
   #字符串分割
   #string_splitter: ^1.0.0+1
   #事件通知

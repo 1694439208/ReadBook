@@ -106,7 +106,7 @@ class ChapterTextPainter extends CustomPainter {
       if (currentPageBottom < bottom || lines.length - 1 == i) {
         // https://stackoverflow.com/questions/56943994/how-to-get-the-raw-text-from-a-flutter-textbox/56943995#56943995
         currentPageEndIndex =
-            textPainter.getPositionForOffset(Offset(left, top)).offset;
+            textPainter.getPositionForOffset(Offset(left, bottom)).offset;
         //final pageText =
         //    widget.text.substring(currentPageStartIndex, currentPageEndIndex);
         //_pageTexts.add(pageText);
