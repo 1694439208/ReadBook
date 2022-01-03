@@ -301,10 +301,10 @@ class ChapterTextPainterState extends State<ChapterTextPainter> {
                                     });
                                   },
                                   child: Container(
-                                    alignment: Alignment(0.0, -1.0),
+                                    alignment: Alignment.topCenter,
                                     padding: EdgeInsets.fromLTRB(5, 5, 5, 5),
                                     child: FittedBox(
-                                      fit: BoxFit.scaleDown,
+                                      fit: BoxFit.cover,
                                       child: Container(
                                         width: widget.width,
                                         height: widget.height,

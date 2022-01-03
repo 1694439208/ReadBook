@@ -33,7 +33,44 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     //final wordPair = WordPair.random();
-    return MultiProvider(
+    return Container(
+      child: MultiProvider(
+        providers: [ChangeNotifierProvider(create: (_) => AppInfoProvider())],
+        child: FutureBuilder(
+          future: loadAsync(),
+          builder: (BuildContext context, AsyncSnapshot snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              return Consumer<AppInfoProvider>(
+                builder: (context, appInfo, _) {
+                  return MaterialApp(
+                    debugShowCheckedModeBanner: false,
+                    //debugShowCheckedModeBanner: false,
+                    title: '海绵阅读器${appInfo.brightness}',
+                    builder: BotToastInit(),
+                    navigatorObservers: [BotToastNavigatorObserver()],
+                    theme: ThemeData(
+                        primarySwatch: Colors.brown,
+                        primaryColor: Colors.white,
+                        brightness: appInfo.brightness), //设置App主题,
+                    home: RandomWords(),
+                  );
+                },
+              );
+            } else {
+              return Container(
+                color: Colors.white,
+                child: Center(
+                  child: Text("数据加载中……",
+                  textDirection: TextDirection.ltr,
+                      style: TextStyle(fontSize: 20, color: Colors.orange)),
+                ),
+              );
+            }
+          },
+        ),
+      ),
+    );
+    /*return MultiProvider(
       providers: [ChangeNotifierProvider(create: (_) => AppInfoProvider())],
       child: Consumer<AppInfoProvider>(
         builder: (context, appInfo, _) {
@@ -66,6 +103,6 @@ class MyApp extends StatelessWidget {
           );
         },
       ),
-    );
+    );*/
   }
 }

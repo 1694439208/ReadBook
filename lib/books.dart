@@ -275,7 +275,7 @@ class _RandomWordsState extends State<RandomWords> {
   }
 
   Widget CreateView<T>(T pair, BuildContext context, List<int> Index,
-      {double fontsize = 16, void Function()? builder}) {
+      {double fontsize = 13, void Function()? builder}) {
     Widget body = Text("data");
     log(pair.runtimeType.toString());
     if (pair is BImage) {

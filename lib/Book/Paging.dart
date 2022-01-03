@@ -35,16 +35,16 @@ class Paging_algorithm {
     }
 
     //分章不够就分块
-    if (Titlenum.length == 1 && data_Text.length > 500) {
+    if (Titlenum.length == 1 && data_Text.length > 2000) {
       //如果没匹配到标题，那就把分成几块防止性能问题
-      var num = (data_Text.length / 500).ceil();
+      var num = (data_Text.length / 2000).ceil();
       for (var i = 0; i < num; i++) {
-        var offset = i * 500;
+        var offset = i * 2000;
         Titlenum.add(i.toString());
-        if (offset + 500 > data_Text.length) {
+        if (offset + 2000 > data_Text.length) {
           ChapterList.add(data_Text.substring(offset, data_Text.length));
         } else {
-          ChapterList.add(data_Text.substring(offset, offset + 500));
+          ChapterList.add(data_Text.substring(offset, offset + 2000));
         }
       }
     } else {
