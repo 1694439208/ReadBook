@@ -37,6 +37,7 @@ class Paging_algorithm {
     //分章不够就分块
     if (Titlenum.length == 1 && data_Text.length > 2000) {
       //如果没匹配到标题，那就把分成几块防止性能问题
+      ChapterList.add("开始！！！");
       var num = (data_Text.length / 2000).ceil();
       for (var i = 0; i < num; i++) {
         var offset = i * 2000;

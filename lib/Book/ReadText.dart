@@ -24,7 +24,7 @@ class ReadText extends CustomPainter {
           color:style!.color,
           fontSize: 12,
         ),
-        text: Title);
+        text: Title!.trim());
     TextPainter tp1 = new TextPainter(
         text: span1,
         textAlign: TextAlign.left,
@@ -38,7 +38,7 @@ class ReadText extends CustomPainter {
         textDirection: TextDirection.ltr);
     tp.layout(maxWidth: width!);
     tp1.paint(canvas, new Offset(5, 5));
-    tp.paint(canvas, new Offset(0, tp1.size.height + 5));
+    tp.paint(canvas, new Offset(0, tp1.size.height + 5));//tp1.size.height + 5
   }
 
   @override

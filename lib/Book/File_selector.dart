@@ -6,10 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-void File_(context,void Function(Set<String>?) builder) async {
-  if (await Permission.storage.request().isGranted) {
-    
-  }
+void File_(context, void Function(Set<String>?) builder) async {
+  if (await Permission.storage.request().isGranted) {}
   // 在某个点击事件里
   Navigator.push(
     context,
@@ -21,45 +19,39 @@ void File_(context,void Function(Set<String>?) builder) async {
         var selecorFile = Set<String>();
         return StatefulBuilder(
             builder: (BuildContext context, StateSetter setState) {
-          /*var file_list = [
-        {
-          "name": "...",
-          "type": "folder",
-          "state": "",
-        },
-        {
-          "name": "data",
-          "type": "folder",
-          "state": "",
-        },
-        {
-          "name": "天龙九部.txt",
-          "type": "TXT",
-          "state": "0", //0没导入过 1导入过
-        }
-      ];*/
-          //var file_list = [];
-          //GetFileDic().then((value) => file_list = value);
-          return FutureBuilder(
-            future: GetFileDic(Dir_path),
-            builder: (BuildContext context, AsyncSnapshot snapshot) {
-              Scaffold body;
-              if (snapshot.connectionState == ConnectionState.done) {
-                var file_list = snapshot.data;
-                Dir_State = List.filled(file_list.length, false);
-                body = new Scaffold(
-                  key: ValueKey<int>(0),
-                  appBar: new AppBar(
-                    title: new Text('导入书籍'),
-                    actions: <Widget>[
-                      IconButton(
-                        icon: Icon(Icons.check),
-                        tooltip: '完成选择',
-                        onPressed: (){
-                          Navigator.pop(context,selecorFile);
-                        },
-                      ),
-                      /*new Padding(
+          return WillPopScope(
+            onWillPop: () async {
+              if (Dir_path != "/storage/emulated/0") {
+                setState(() {
+                  var temp_str = Dir_path.split("/");
+                  temp_str.removeLast();
+                  Dir_path = temp_str.join("/");
+                });
+                return false;
+              }
+              Navigator.pop(context, selecorFile);
+              return true;
+            },
+            child: FutureBuilder(
+              future: GetFileDic(Dir_path),
+              builder: (BuildContext context, AsyncSnapshot snapshot) {
+                Scaffold body;
+                if (snapshot.connectionState == ConnectionState.done) {
+                  var file_list = snapshot.data;
+                  Dir_State = List.filled(file_list.length, false);
+                  body = new Scaffold(
+                    key: ValueKey<int>(0),
+                    appBar: new AppBar(
+                      title: new Text('导入书籍'),
+                      actions: <Widget>[
+                        IconButton(
+                          icon: Icon(Icons.check),
+                          tooltip: '完成选择',
+                          onPressed: () {
+                            Navigator.pop(context, selecorFile);
+                          },
+                        ),
+                        /*new Padding(
                         child: new Icon(Icons.add, color: Colors.white),
                         padding: EdgeInsets.all(10.0),
                       ),
@@ -85,49 +77,49 @@ void File_(context,void Function(Set<String>?) builder) async {
                           print("选择的：" + selected);
                         },
                       ),*/
-                    ],
-                  ),
-                  //设置显示在右边的控件
-                  body: new Center(
-                    child: Column(
-                      children: [
-                        Expanded(
-                          child: ListView.builder(
-                              shrinkWrap: true,
-                              itemCount: file_list.length,
-                              itemBuilder: (BuildContext context, int index) {
-                                var icon = Icons.no_encryption;
-                                var type = file_list[index]["type"];
-                                switch (type) {
-                                  case "TXT":
-                                    icon = Icons.text_fields;
-                                    break;
-                                  case "folder":
-                                    icon = Icons.folder;
-                                    break;
-                                  default: //BackfFolder
-                                }
-                                return Container(
-                                  height: 60,
-                                  child: ItemDir(
-                                    selected: false,
-                                    FileMap: file_list[index],
-                                    CallState: (selected, SelectStr) {
-                                      //print(SelectStr);
-                                      if (selected) {
-                                        selecorFile.add(SelectStr);
-                                      } else {
-                                        selecorFile.remove(SelectStr);
-                                      }
-                                    },
-                                    JmpState: (path) {
-                                      setState(() {
-                                        Dir_path = path;
-                                      });
-                                    },
-                                    Dir_path: Dir_path,
-                                    icon: icon,
-                                  ) /*ListTile(
+                      ],
+                    ),
+                    //设置显示在右边的控件
+                    body: new Center(
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: file_list.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  var icon = Icons.no_encryption;
+                                  var type = file_list[index]["type"];
+                                  switch (type) {
+                                    case "TXT":
+                                      icon = Icons.text_fields;
+                                      break;
+                                    case "folder":
+                                      icon = Icons.folder;
+                                      break;
+                                    default: //BackfFolder
+                                  }
+                                  return Container(
+                                    height: 60,
+                                    child: ItemDir(
+                                      selected: false,
+                                      FileMap: file_list[index],
+                                      CallState: (selected, SelectStr) {
+                                        //print(SelectStr);
+                                        if (selected) {
+                                          selecorFile.add(SelectStr);
+                                        } else {
+                                          selecorFile.remove(SelectStr);
+                                        }
+                                      },
+                                      JmpState: (path) {
+                                        setState(() {
+                                          Dir_path = path;
+                                        });
+                                      },
+                                      Dir_path: Dir_path,
+                                      icon: icon,
+                                    ) /*ListTile(
                                   selected: Dir_State[index],
                                   leading: Icon(icon, size: 40), //folder
                                   trailing: type == "folder"
@@ -166,38 +158,40 @@ void File_(context,void Function(Set<String>?) builder) async {
                                     }
                                   },
                                 )*/
-                                  ,
-                                  decoration: new BoxDecoration(
-                                    border: Border(
-                                      bottom: BorderSide(
-                                        width: 0.1, //宽度
-                                        color: Colors.brown, //边框颜色
+                                    ,
+                                    decoration: new BoxDecoration(
+                                      border: Border(
+                                        bottom: BorderSide(
+                                          width: 0.1, //宽度
+                                          color: Colors.brown, //边框颜色
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                );
-                              }),
-                        ),
-                      ],
+                                  );
+                                }),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
+                  );
+                } else {
+                  body = new Scaffold(
+                    key: ValueKey<int>(1),
+                    appBar: new AppBar(title: new Text('导入书籍')),
+                    body: new Center(),
+                  );
+                }
+                return AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 500),
+                  transitionBuilder:
+                      (Widget child, Animation<double> animation) {
+                    //执行缩放动画
+                    return FadeTransition(child: child, opacity: animation);
+                  },
+                  child: body,
                 );
-              } else {
-                body = new Scaffold(
-                  key: ValueKey<int>(1),
-                  appBar: new AppBar(title: new Text('导入书籍')),
-                  body: new Center(),
-                );
-              }
-              return AnimatedSwitcher(
-                duration: const Duration(milliseconds: 500),
-                transitionBuilder: (Widget child, Animation<double> animation) {
-                  //执行缩放动画
-                  return FadeTransition(child: child, opacity: animation);
-                },
-                child: body,
-              );
-            },
+              },
+            ),
           );
         });
       },

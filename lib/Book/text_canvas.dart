@@ -84,7 +84,7 @@ class ChapterTextPainter extends CustomPainter {
 
     //TextSelection selection =
     //    TextSelection(baseOffset: 0, extentOffset: tempStr.length);
-    
+
     // get a list of TextBoxes (Rects)  computeLineMetrics
     //List<TextBox> boxes = textPainter.getBoxesForSelection(selection);
     //var LineList = textPainter.computeLineMetrics();
@@ -102,12 +102,17 @@ class ChapterTextPainter extends CustomPainter {
       final top = line.baseline - line.ascent;
       final bottom = line.baseline + line.descent;
 
+      var top_offset = top;
+
       // Current line overflow page
       if (currentPageBottom < bottom || lines.length - 1 == i) {
         // https://stackoverflow.com/questions/56943994/how-to-get-the-raw-text-from-a-flutter-textbox/56943995#56943995
+        if (lines.length - 1 == i) {
+          top_offset = bottom;
+        }
         currentPageEndIndex =
-            textPainter.getPositionForOffset(Offset(left, bottom)).offset;
-        
+            textPainter.getPositionForOffset(Offset(left, top_offset)).offset;
+
         //final pageText =
         //    widget.text.substring(currentPageStartIndex, currentPageEndIndex);
         //_pageTexts.add(pageText);

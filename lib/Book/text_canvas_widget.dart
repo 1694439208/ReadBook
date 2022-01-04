@@ -115,6 +115,9 @@ class _TextCanvas1State extends State<TextCanvas1>
   late Animation<double> animation;
   late Animation<double> animation1;
   late Future GetBookFile;
+
+  late AutoScrollController controller;
+  final scrollDirection = Axis.vertical;
   // 获取知乎每天的新闻，数据获取成功后 setState来刷新数据
   Future getPathBook(List<int> Index, BuildContext context) async {
     widget.text = "";
@@ -201,7 +204,7 @@ class _TextCanvas1State extends State<TextCanvas1>
         widget.pa = Paging_algorithm(
           widget.text!,
           ScreenAdaptation.screenWidth,
-          ScreenAdaptation.screenHeight - 10,
+          ScreenAdaptation.screenHeight - 50,
           TextStyle(
             //height: 1.0,
             //fontFamily: 'Piazzolla',
@@ -223,6 +226,10 @@ class _TextCanvas1State extends State<TextCanvas1>
 
   @override
   void initState() {
+    controller = AutoScrollController(
+        viewportBoundaryGetter: () =>
+            Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom),
+        axis: scrollDirection);
     //SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
     //    statusBarColor: Colors.transparent,
     //    statusBarIconBrightness: Brightness.dark));
@@ -258,7 +265,9 @@ class _TextCanvas1State extends State<TextCanvas1>
     //SystemChrome.setEnabledSystemUIMode(
     //             SystemUiMode.edgeToEdge);
     //SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
-    SystemChrome.setEnabledSystemUIOverlays([]);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky,
+        overlays: [SystemUiOverlay.bottom]);
+    //SystemChrome.setEnabledSystemUIOverlays([]);
     //WidgetsBinding.instance!.addObserver(this);
   }
 
@@ -287,6 +296,15 @@ class _TextCanvas1State extends State<TextCanvas1>
     super.dispose();
     _controller.dispose();
   }
+
+  Widget _wrapScrollTag({required int index, required Widget child}) =>
+      AutoScrollTag(
+        key: ValueKey(index),
+        controller: controller,
+        index: index,
+        child: child,
+        highlightColor: Colors.black.withOpacity(0.1),
+      );
 
   void SetAdimn(double begin, double end, Dir DD, double pixelsPerSecond,
       void Function() addListener, void Function(AnimationStatus) listener) {
@@ -722,20 +740,27 @@ class _TextCanvas1State extends State<TextCanvas1>
       },
     );
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       onDrawerChanged: (isDrawerOpen) {
         widget.menu = isDrawerOpen;
         if (isDrawerOpen) {
-          SystemChrome.setEnabledSystemUIOverlays(
-              [SystemUiOverlay.top, SystemUiOverlay.bottom]);
-          Future.delayed(const Duration(milliseconds: 1000), () {
+          /*SystemChrome.setEnabledSystemUIOverlays(
+              [SystemUiOverlay.bottom]);*/
+          //SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual);
+          /*Future.delayed(const Duration(milliseconds: 1000), () {
             //延时执行的代码
-            if (widget._controller1.hasClients) {
+            controller.scrollToIndex(widget.pa!.ChapterIndex,
+            preferPosition: AutoScrollPosition.begin);
+            /*if (widget._controller1.hasClients) {
               widget._controller1.animateTo(50.0 * widget.pa!.ChapterIndex,
                   duration: Duration(seconds: 1), curve: Curves.fastOutSlowIn);
-            }
-          });
+            }*/
+          });*/
+          controller.scrollToIndex(widget.pa!.ChapterIndex,
+            preferPosition: AutoScrollPosition.begin);
         } else {
-          SystemChrome.setEnabledSystemUIOverlays([]);
+          //SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+          //SystemChrome.setEnabledSystemUIOverlays([]);
         }
       },
       drawerEnableOpenDragGesture: false,
@@ -754,6 +779,7 @@ class _TextCanvas1State extends State<TextCanvas1>
               }
               //await SystemChrome.setEnabledSystemUIMode(
               //    SystemUiMode.immersiveSticky);
+              SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
               return true;
             }),
       ),
@@ -780,49 +806,52 @@ class _TextCanvas1State extends State<TextCanvas1>
               body: TabBarView(children: [
                 Center(
                     child: ListView.builder(
-                  controller: widget._controller1,
+                  controller: controller,
                   itemCount: widget.pa == null ? 0 : widget.pa!.Titlenum.length,
                   itemBuilder: (BuildContext context, int index) {
-                    return Container(
-                      // 下边框
-                      //decoration: BoxDecoration(
-                      ////    border: Border(
-                      //        bottom: BorderSide(
-                      //            width: 0.5, color: Colors.grey))),
-                      height: 50,
-                      child: ListTile(
-                        selected: widget.pa!.ChapterIndex == index,
-                        dense: true,
-                        title: Text(
-                          widget.pa!.Titlenum[index].trim(),
-                          style: TextStyle(fontSize: 12),
-                        ),
-                        subtitle: Text(
-                          "字数:${widget.pa!.ChapterList[index].length}",
-                          //maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(fontSize: 9),
-                        ),
-                        /*leading: CircleAvatar(
+                    return _wrapScrollTag(
+                        index: index,
+                        child: Container(
+                          // 下边框
+                          //decoration: BoxDecoration(
+                          ////    border: Border(
+                          //        bottom: BorderSide(
+                          //            width: 0.5, color: Colors.grey))),
+                          height: 50,
+                          child: ListTile(
+                            selected: widget.pa!.ChapterIndex == index,
+                            dense: true,
+                            title: Text(
+                              widget.pa!.Titlenum[index].trim(),
+                              style: TextStyle(fontSize: 12),
+                            ),
+                            subtitle: Text(
+                              "字数:${widget.pa!.ChapterList[index].length}",
+                              //maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(fontSize: 9),
+                            ),
+                            /*leading: CircleAvatar(
                           child: Text(index.toString()),
                           backgroundColor: widget.pa!.ChapterIndex == index
                               ? Colors.red
                               : Color.fromARGB(255, 250, 250, 250),
                         ),*/
-                        onTap: () {
-                          widget.pa!.SetChapterIndex(index);
-                          widget.pa!.page = 0;
+                            onTap: () {
+                              widget.pa!.SetChapterIndex(index);
+                              widget.pa!.page = 0;
 
-                          setState(() {
-                            widget.ScrollOffset = widget._controller1.offset;
-                            widget.dir = Dir.none;
-                            widget.Xoffset = 0.0;
-                            //log("animation.value:${animation.value},widget.dir:${widget.dir}");
-                          });
-                          Navigator.pop(context);
-                        },
-                      ),
-                    );
+                              setState(() {
+                                widget.ScrollOffset =
+                                    widget._controller1.offset;
+                                widget.dir = Dir.none;
+                                widget.Xoffset = 0.0;
+                                //log("animation.value:${animation.value},widget.dir:${widget.dir}");
+                              });
+                              Navigator.pop(context);
+                            },
+                          ),
+                        ));
                   },
                 )),
                 Container(

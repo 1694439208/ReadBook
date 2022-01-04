@@ -61,6 +61,9 @@ class ChapterTextPainter extends StatefulWidget {
       // Current line overflow page
       if (currentPageBottom < bottom || lines.length - 1 == i) {
         // https://stackoverflow.com/questions/56943994/how-to-get-the-raw-text-from-a-flutter-textbox/56943995#56943995
+        if (lines.length - 1 == i) {
+          var a = 1;
+        }
         currentPageEndIndex =
             textPainter.getPositionForOffset(Offset(left, top)).offset;
         //final pageText =

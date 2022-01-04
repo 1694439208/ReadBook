@@ -14,6 +14,7 @@ import 'utils/GlobalConfig.dart';
 import 'package:bot_toast/bot_toast.dart';
 
 import 'utils/ThemeChanger.dart';
+import 'utils/screen_adaptation.dart';
 
 void main() => realRunApp();
 
@@ -21,6 +22,12 @@ void realRunApp() {
   runApp(MyApp());
   //SystemUiOverlayStyle systemUiOverlayStyle = SystemUiOverlayStyle(statusBarColor:Colors.transparent);
   //SystemChrome.setSystemUIOverlayStyle(systemUiOverlayStyle);
+  /*SystemChrome.setEnabledSystemUIOverlays(
+              [SystemUiOverlay.top]);*/
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+  ));
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 }
 
 Future<void> loadAsync() async {
@@ -61,7 +68,7 @@ class MyApp extends StatelessWidget {
                 color: Colors.white,
                 child: Center(
                   child: Text("数据加载中……",
-                  textDirection: TextDirection.ltr,
+                      textDirection: TextDirection.ltr,
                       style: TextStyle(fontSize: 20, color: Colors.orange)),
                 ),
               );

@@ -52,8 +52,13 @@ class _RandomWordsState extends State<RandomWords> {
   final Set<WordPair> _saved = new Set<WordPair>(); // 新增本行
   final _biggerFont = const TextStyle(fontSize: 18.0);
   get _popDrawer => () => Navigator.pop(context);
+  @override
+  void initState() {
+    print('-----initState-----');
+    super.initState();
+  }
 
-  //
+  //ScreenAdaptation.init(context);
   @override
   Widget build(BuildContext context) {
     ScreenAdaptation.init(context);
@@ -144,7 +149,7 @@ class _RandomWordsState extends State<RandomWords> {
                 onTap: () {
                   //BotToast.showText(text: '本地导入');
                   File_(context, (result) {
-                    if (result != null) {
+                    if (result != null&&result.length>0) {
                       showAlertDialog("是否导入目录信息", BackButtonBehavior.none,
                           cancel: () {
                         BotToast.showText(text: '不导入');
