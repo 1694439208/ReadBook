@@ -27,18 +27,20 @@ class ScreenAdaptation {
   //static double height = 0.0;
   static double statusBarHeight = 0.0;
   static MediaQueryData? mediaQueryData;
+  static BuildContext? G_context;
   static init(BuildContext context) {
-    if (mediaQueryData!=null) {
+    /*if (mediaQueryData!=null) {
       return;
-    }
+    }*/
     mediaQueryData = MediaQuery.of(context);
+    G_context = context;
     //width = mediaQueryData.size.width - 20;
     //height = mediaQueryData.size.height - 20;
 
     statusBarHeight = mediaQueryData!.padding.top;
     ScreenAdaptation.screenHeight =
-        mediaQueryData!.size.height - statusBarHeight - 45;
-    ScreenAdaptation.screenWidth = mediaQueryData!.size.width - 10;
+        mediaQueryData!.size.height - statusBarHeight-28;
+    ScreenAdaptation.screenWidth = mediaQueryData!.size.width - 0;
 //    double size =
 //        mediaQueryData.size.longestSide * mediaQueryData.devicePixelRatio;
   }

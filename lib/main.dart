@@ -28,7 +28,7 @@ void realRunApp() {
     statusBarColor: Colors.transparent,
   ));
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-}
+}//ScreenAdaptation.init(context);
 
 Future<void> loadAsync() async {
   bool success = await BookConfig.getInstance();

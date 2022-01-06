@@ -11,14 +11,20 @@ typedef String_String_int_funcType = Pointer<Utf8> Function(
     Pointer<Utf8> str, int length);
 
 class libReadUtils {
-  static late DynamicLibrary preferences;
+  static late DynamicLibrary? preferences = null;
   static late Map FuncMap;
+
   static bool getInstance() {
-    preferences = DynamicLibrary.open("libReadUtils.so");
-    FuncMap = {
-      "Split": preferences.lookupFunction<String_String_int32_funcType,
-          String_String_int_funcType>("Split"),
-    };
+    if (preferences == null) {
+      preferences = DynamicLibrary.open("libReadUtils.so");
+      FuncMap = {
+        "Split": preferences!.lookupFunction<String_String_int32_funcType,
+            String_String_int_funcType>("Split"),
+        "LoadFile": preferences!.lookupFunction<String_String_int32_funcType,
+            String_String_int_funcType>("LoadFile"),
+      };
+      return true;
+    }
     return true;
   }
 
@@ -56,13 +62,33 @@ class libReadUtils {
 
       //var str1 = StringUtf8Pointer(Pattern).toNativeUtf8();
 
-      var r = Utf8Pointer(funHandle(str, str.length))
-          .toDartString();
+      var r = Utf8Pointer(funHandle(str, str.length)).toDartString();
 
       //free(funHandle);
       return r.length;
     } catch (e) {
       return 1;
+    }
+  }
+
+  static String LoadFile(String data) {
+    try {
+      final funHandle = FuncMap["LoadFile"] as String_String_int_funcType;
+      /*var str = StringUtf8Pointer("更多精校小说尽在新奇书网下载：http://www.xsqishu.com")
+          .toNativeUtf8();*/
+      var path = StringUtf8Pointer(data).toNativeUtf8();
+      //var str = toNativeUtf8(data);
+      //var str = StringUtf8Pointer("更多精校小说尽在新奇书网下载：http://ww0000000000000000000w.xsqishu.com")
+      //    .toNativeUtf8();
+
+      //var str1 = StringUtf8Pointer(Pattern).toNativeUtf8();
+
+      var r = Utf8Pointer(funHandle(path, path.length)).toDartString();
+
+      //free(funHandle);
+      return r;
+    } catch (e) {
+      return "";
     }
   }
 

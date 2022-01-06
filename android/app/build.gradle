@@ -62,10 +62,12 @@ android {
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+        println 'flutter.targetSdkVersion:' + flutter.targetSdkVersion
         ndk {
             moduleName = "libReadUtils"
             //abiFilters "x86_64", "x86"//, "armeabi-v7a", "arm64-v8a", "armeabi"
             println 'abiFilters:' + abiFilters
+            
         }
     }
     signingConfigs {

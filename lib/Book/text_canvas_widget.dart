@@ -13,9 +13,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_application_1/Book/Paging.dart';
 import 'package:flutter_application_1/BookType/Txt.dart';
 import 'package:flutter_application_1/utils/GlobalConfig.dart';
+import 'package:flutter_application_1/utils/ThemeChanger.dart';
 import 'package:flutter_application_1/utils/screen_adaptation.dart';
+import 'package:flutter_application_1/utils/scroll_to_index_hmbb.dart';
 import 'package:flutter_charset_detector/flutter_charset_detector.dart';
-import 'package:scroll_to_index/scroll_to_index.dart';
+import 'package:provider/provider.dart';
 
 import 'ChapterTextPainter.dart';
 import '../utils/LibMain.dart';
@@ -105,6 +107,8 @@ class TextCanvas1 extends StatefulWidget {
   var ThisFontColor = BookConfig.GetFontColor();
   var ThisColorBackound = BookConfig.GetBackgroundColor();
 
+  FutureBuilder ?TextView;
+
   @override
   _TextCanvas1State createState() => _TextCanvas1State();
 }
@@ -115,6 +119,7 @@ class _TextCanvas1State extends State<TextCanvas1>
   late Animation<double> animation;
   late Animation<double> animation1;
   late Future GetBookFile;
+  
 
   late AutoScrollController controller;
   final scrollDirection = Axis.vertical;
@@ -146,6 +151,9 @@ class _TextCanvas1State extends State<TextCanvas1>
           ///Uint8List byte = f.readAsBytesSync();
           var stream = f.openRead();
           str = await stream.transform(utf8.decoder).join();
+
+          ///libReadUtils.getInstance();
+          ///str = libReadUtils.LoadFile(widget.bt!.src);
           //////str = String.fromCharCodes(byte);
           //////libReadUtils.getInstance();
           //////var aa = libReadUtils.Split(byte, r"(\s|\n)(第)([\u4e00-\u9fa5a-zA-Z0-9]{1,7})(章)(.+|\n)");
@@ -174,7 +182,7 @@ class _TextCanvas1State extends State<TextCanvas1>
         widget.text = str;
         widget.pa = Paging_algorithm(
           str,
-          ScreenAdaptation.screenWidth,
+          ScreenAdaptation.screenWidth - 10,
           ScreenAdaptation.screenHeight,
           TextStyle(
             //height: 1.0,
@@ -199,7 +207,7 @@ class _TextCanvas1State extends State<TextCanvas1>
         //TextBook = pa.This();
       });*/
     } else {
-      setState(() {
+      /*setState(() {
         widget.text = "加载网络图书没实现！！！";
         widget.pa = Paging_algorithm(
           widget.text!,
@@ -220,7 +228,7 @@ class _TextCanvas1State extends State<TextCanvas1>
           ChapterIndex: widget.bt!.chapter_index,
           page: widget.bt!.chapterpage,
         );
-      });
+      });*/
     }
   }
 
@@ -233,9 +241,9 @@ class _TextCanvas1State extends State<TextCanvas1>
     //SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
     //    statusBarColor: Colors.transparent,
     //    statusBarIconBrightness: Brightness.dark));
-
-    //_controller = AnimationController(
-    //    vsync: this, duration: const Duration(milliseconds: 2000)); //时长);
+/*controller.scrollToIndex(index)
+    _controller = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 2000)); //时长);*/
 
     ScreenAdaptation.setBrightness(widget._sliderbrightnessValue);
     //DeviceDisplayBrightness.keepOn(enabled: true);
@@ -248,9 +256,11 @@ class _TextCanvas1State extends State<TextCanvas1>
         //print(animation.value);
       });
     _controller.forward(from: 0.0);*/
+
     GetBookFile = getPathBook(widget.Index!, context);
 
     super.initState();
+    //var mediaQueryData = MediaQuery.of(context);
     /*SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(statusBarColor: Colors.red)
     );*/
@@ -325,6 +335,7 @@ class _TextCanvas1State extends State<TextCanvas1>
         widget.style,
         27.0);*/
     //BookConfig.GetBookGroup();
+    //var mediaQueryData = MediaQuery.of(context);
     bool isMove = false; //是否移动
     bool isDown = false; //是否按下
     var lastPopTime = DateTime.now();
@@ -332,7 +343,7 @@ class _TextCanvas1State extends State<TextCanvas1>
     var Size = MediaQuery.of(context).size;
     log("渲染一次:${widget.dir}");
 
-    var TextView = FutureBuilder(
+    widget.TextView = FutureBuilder(
       future: GetBookFile,
       builder: (context, snapshot) {
         switch (snapshot.connectionState) {
@@ -385,14 +396,24 @@ class _TextCanvas1State extends State<TextCanvas1>
                   onLongPressStart: (detail) {
                     //长按
                     //长按会触发下一页，所以这里跳转到上一页
-
-                    widget.textKey!.currentState!.SetSwitchView(true);
-                    widget.pa!.sub_page();
+                    var x = ScreenAdaptation.screenWidth / 3;
+                    var y = ScreenAdaptation.screenHeight / 3;
+                    if (detail.localPosition.dy > y &&
+                        detail.localPosition.dy < y * 2 &&
+                        detail.localPosition.dx > x &&
+                        detail.localPosition.dx < x * 2) {
+                      //var aa = Scaffold.of(context);
+                      //Scaffold.of(context).openDrawer();
+                    } else {
+                      widget.textKey!.currentState!.SetSwitchView(true);
+                      widget.pa!.sub_page();
+                    }
                   },
                   onPanDown: (detail) {
                     widget.PointStart = detail.globalPosition;
                   },
                   onPanCancel: () {
+                    //kPrimaryButton.
                     //按压回调
                     //Scaffold.of(context).openDrawer();
                     //单击页面任何内容下一页
@@ -704,7 +725,7 @@ class _TextCanvas1State extends State<TextCanvas1>
                   color: BookConfig.GetFontColor(),
                   //backgroundColor: BookConfig.GetBackgroundColor(),
                 ),
-                width: ScreenAdaptation.screenWidth + 10,
+                width: ScreenAdaptation.screenWidth,
                 offset: widget.Xoffset,
                 dir: widget.dir,
                 BackgroundColor: BookConfig.GetBackgroundColor(),
@@ -756,8 +777,15 @@ class _TextCanvas1State extends State<TextCanvas1>
                   duration: Duration(seconds: 1), curve: Curves.fastOutSlowIn);
             }*/
           });*/
-          controller.scrollToIndex(widget.pa!.ChapterIndex,
-            preferPosition: AutoScrollPosition.begin);
+          /*Future.delayed(const Duration(milliseconds: 1000), () {
+            //延时执行的代码
+            widget._controller1.jumpTo(widget.pa!.ChapterIndex * 50);
+          });*/
+
+          controller.scrollToIndex(
+            widget.pa!.ChapterIndex,
+            preferPosition: AutoScrollPosition.begin,
+          );
         } else {
           //SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
           //SystemChrome.setEnabledSystemUIOverlays([]);
@@ -768,7 +796,7 @@ class _TextCanvas1State extends State<TextCanvas1>
         //阅读页面
         behavior: HitTestBehavior.opaque,
         child: WillPopScope(
-            child: TextView,
+            child: widget.TextView!,
             onWillPop: () async {
               //_animateToIndex(i) => _controller1.animateTo(100,
               //    duration: Duration(seconds: 2), curve: Curves.fastOutSlowIn);
@@ -811,45 +839,46 @@ class _TextCanvas1State extends State<TextCanvas1>
                   itemBuilder: (BuildContext context, int index) {
                     return _wrapScrollTag(
                         index: index,
-                        child: Container(
-                          // 下边框
-                          //decoration: BoxDecoration(
-                          ////    border: Border(
-                          //        bottom: BorderSide(
-                          //            width: 0.5, color: Colors.grey))),
-                          height: 50,
-                          child: ListTile(
-                            selected: widget.pa!.ChapterIndex == index,
-                            dense: true,
-                            title: Text(
-                              widget.pa!.Titlenum[index].trim(),
-                              style: TextStyle(fontSize: 12),
-                            ),
-                            subtitle: Text(
-                              "字数:${widget.pa!.ChapterList[index].length}",
-                              //maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(fontSize: 9),
-                            ),
-                            /*leading: CircleAvatar(
+                        child: GestureDetector(
+                          onTap: () {
+                            widget.pa!.SetChapterIndex(index);
+                            widget.pa!.page = 0;
+
+                            setState(() {
+                              //widget.ScrollOffset = widget._controller1.offset;
+                              widget.dir = Dir.none;
+                              widget.Xoffset = 0.0;
+                              //log("animation.value:${animation.value},widget.dir:${widget.dir}");
+                            });
+                            Navigator.pop(context);
+                          },
+                          child: Container(
+                            // 下边框
+                            //decoration: BoxDecoration(
+                            ////    border: Border(
+                            //        bottom: BorderSide(
+                            //            width: 0.5, color: Colors.grey))),
+                            height: 50,
+                            child: ListTile(
+                              selected: widget.pa!.ChapterIndex == index,
+                              dense: true,
+                              title: Text(
+                                widget.pa!.Titlenum[index].trim(),
+                                style: TextStyle(fontSize: 12),
+                              ),
+                              subtitle: Text(
+                                "字数:${widget.pa!.ChapterList[index].length}",
+                                //maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(fontSize: 9),
+                              ),
+                              /*leading: CircleAvatar(
                           child: Text(index.toString()),
                           backgroundColor: widget.pa!.ChapterIndex == index
                               ? Colors.red
                               : Color.fromARGB(255, 250, 250, 250),
                         ),*/
-                            onTap: () {
-                              widget.pa!.SetChapterIndex(index);
-                              widget.pa!.page = 0;
-
-                              setState(() {
-                                widget.ScrollOffset =
-                                    widget._controller1.offset;
-                                widget.dir = Dir.none;
-                                widget.Xoffset = 0.0;
-                                //log("animation.value:${animation.value},widget.dir:${widget.dir}");
-                              });
-                              Navigator.pop(context);
-                            },
+                            ),
                           ),
                         ));
                   },
@@ -948,6 +977,23 @@ class _TextCanvas1State extends State<TextCanvas1>
                               inactiveColor: Colors.grey,
                               semanticFormatterCallback: (double newValue) {
                                 return '${newValue.round()} dollars}';
+                              },
+                            ),
+                            SwitchListTile(
+                              value: Theme.of(context).brightness !=
+                                  Brightness.dark,
+                              title: Text("切换主题"),
+                              onChanged: (state) {
+                                GetBookFile = getPathBook(widget.Index!, context);
+                                setState(() {
+                                  state
+                                      ? Provider.of<AppInfoProvider>(context,
+                                              listen: false)
+                                          .setTheme(Brightness.light)
+                                      : Provider.of<AppInfoProvider>(context,
+                                              listen: false)
+                                          .setTheme(Brightness.dark);
+                                });
                               },
                             ),
                           ],

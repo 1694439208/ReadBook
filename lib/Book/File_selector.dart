@@ -8,6 +8,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 void File_(context, void Function(Set<String>?) builder) async {
   if (await Permission.storage.request().isGranted) {}
+  if (await Permission.manageExternalStorage.request().isGranted) {}
   // 在某个点击事件里
   Navigator.push(
     context,

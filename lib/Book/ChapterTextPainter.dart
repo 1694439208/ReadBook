@@ -28,7 +28,7 @@ class ArgData {
 }
 
 class ChapterTextPainter extends StatefulWidget {
-  static List<int> CreatePagerData(ArgData argData) {
+  static List<int> CreatePagerData123(ArgData argData) {
     List<int> result = [];
     var tempStr = argData.text!;
     int star = 0;
@@ -313,6 +313,7 @@ class ChapterTextPainterState extends State<ChapterTextPainter> {
                                         height: widget.height,
                                         child: CustomPaint(
                                           painter: ReadText(
+                                            context,
                                             Title: "${widget.Back_text_title}",
                                             Contont: widget.pa!.GetText(
                                                 index, widget.pa!.ChapterIndex),
@@ -420,6 +421,7 @@ class ChapterTextPainterState extends State<ChapterTextPainter> {
       }
     } else {
       WidgetView = Container(
+        
         //width: widget.width,
         //height: ScreenAdaptation.screenHeight,
         key: ValueKey<int>(1),
@@ -434,6 +436,7 @@ class ChapterTextPainterState extends State<ChapterTextPainter> {
                 padding: EdgeInsets.fromLTRB(5, 0, 5, 5),
                 child: CustomPaint(
                   painter: ReadText(
+                    context,
                     Title: "${widget.Back_text_title}",
                     Contont: widget.Back_text!,
                     width: widget.width! - 10,
@@ -474,6 +477,7 @@ class ChapterTextPainterState extends State<ChapterTextPainter> {
                 padding: EdgeInsets.fromLTRB(5, 0, 5, 5),
                 child: CustomPaint(
                   painter: ReadText(
+                    context,
                     Title: "${widget.text_title}",
                     Contont: widget.text!,
                     width: widget.width! - 10,
