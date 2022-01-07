@@ -72,6 +72,16 @@ class ChapterTextPainter extends CustomPainter {
   }
 
   static List<int> CreatePagerData(ArgData argData) {
+    /*final _pageKey = GlobalKey();
+    width!-10,
+          height!-25,
+    final pageSize =
+        (_pageKey.currentContext.findRenderObject() as RenderBox).size; */
+
+    var width = argData.width! - 10;
+    var height = argData.height! - 50;
+    log("width:${width},height${height}");
+
     List<int> result = [];
     var tempStr = argData.text!;
     int star = 0;
@@ -80,7 +90,7 @@ class ChapterTextPainter extends CustomPainter {
         text: TextSpan(text: tempStr, style: argData.textStyle),
         textAlign: TextAlign.left,
         textDirection: TextDirection.ltr);
-    textPainter.layout(maxWidth: argData.width!);
+    textPainter.layout(maxWidth: width); //用于左右各5空隙
 
     //TextSelection selection =
     //    TextSelection(baseOffset: 0, extentOffset: tempStr.length);
@@ -91,9 +101,11 @@ class ChapterTextPainter extends CustomPainter {
 
     // https://medium.com/swlh/flutter-line-metrics-fd98ab180a64
     List<LineMetrics> lines = textPainter.computeLineMetrics();
-    double currentPageBottom = argData.height!;
+    double currentPageBottom = height;
     int currentPageStartIndex = 0;
     int currentPageEndIndex = 0;
+
+    var bottom_top = 0.0;
 
     for (int i = 0; i < lines.length; i++) {
       final line = lines[i];
@@ -101,27 +113,23 @@ class ChapterTextPainter extends CustomPainter {
       final left = line.left;
       final top = line.baseline - line.ascent;
       final bottom = line.baseline + line.descent;
-
-      var top_offset = top;
-
       // Current line overflow page
-      if (currentPageBottom < bottom || lines.length - 1 == i) {
+      if (currentPageBottom < bottom) {
         // https://stackoverflow.com/questions/56943994/how-to-get-the-raw-text-from-a-flutter-textbox/56943995#56943995
-        if (lines.length - 1 == i) {
-          top_offset = bottom;
-        }
         currentPageEndIndex =
-            textPainter.getPositionForOffset(Offset(left, top_offset)).offset;
-
+            textPainter.getPositionForOffset(Offset(left, top)).offset;
         //final pageText =
-        //    widget.text.substring(currentPageStartIndex, currentPageEndIndex);
-        //_pageTexts.add(pageText);
-
+        //    tempStr.substring(currentPageStartIndex, currentPageEndIndex);
         result.add(currentPageEndIndex);
+
         currentPageStartIndex = currentPageEndIndex;
-        currentPageBottom = top + argData.height!;
+        currentPageBottom = top + height;
+        //log("argData.height:${height}");
       }
     }
+
+    //final lastPageText = widget.text.substring(currentPageStartIndex);
+    result.add(tempStr.length);
 /*int index = 0;
     while (true) {
       height += argData.height!;

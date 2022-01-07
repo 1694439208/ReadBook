@@ -39,7 +39,7 @@ class ReadText extends CustomPainter {
         textDirection: TextDirection.ltr);
     tp.layout(maxWidth: width!);
     tp1.paint(canvas, new Offset(5, 5));
-    tp.paint(canvas, new Offset(0, 25)); //tp1.size.height + 5
+    tp.paint(canvas, new Offset(0, 23)); //tp1.size.height + 518 + 5
   }
 
   @override

@@ -149,7 +149,7 @@ class _RandomWordsState extends State<RandomWords> {
                 onTap: () {
                   //BotToast.showText(text: '本地导入');
                   File_(context, (result) {
-                    if (result != null&&result.length>0) {
+                    if (result != null && result.length > 0) {
                       showAlertDialog("是否导入目录信息", BackButtonBehavior.none,
                           cancel: () {
                         BotToast.showText(text: '不导入');
@@ -494,7 +494,7 @@ class _RandomWordsState extends State<RandomWords> {
         new MaterialPageRoute<void>(
           // 新增如下20行代码 ...
           builder: (BuildContext context) {
-            return TextCanvas1(pair as BTXT, Index);
+            return SafeArea(child: TextCanvas1(pair as BTXT, Index),) ;
           },
         ), // ... 新增代码结束
       );

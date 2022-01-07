@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_application_1/utils/screen_adaptation.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
 import 'dart:developer';
@@ -311,7 +312,21 @@ class ChapterTextPainterState extends State<ChapterTextPainter> {
                                       child: Container(
                                         width: widget.width,
                                         height: widget.height,
-                                        child: CustomPaint(
+                                        child: Text.rich(
+                                          TextSpan(
+                                            children: [
+                                              TextSpan(
+                                                  text:
+                                                      "${widget.Back_text_title}\n"),
+                                              TextSpan(
+                                                  text: widget.pa!.GetText(
+                                                      index,
+                                                      widget.pa!
+                                                          .ChapterIndex), // widget.Back_text!,
+                                                  style: widget.style),
+                                            ],
+                                          ),
+                                        ) /*CustomPaint(
                                           painter: ReadText(
                                             context,
                                             Title: "${widget.Back_text_title}",
@@ -320,7 +335,7 @@ class ChapterTextPainterState extends State<ChapterTextPainter> {
                                             width: widget.width! - 10,
                                             style: widget.style,
                                           ),
-                                        ) /*Text.rich(
+                                        )*/ /*Text.rich(
                                           TextSpan(
                                             children: [
                                               TextSpan(
@@ -403,6 +418,8 @@ class ChapterTextPainterState extends State<ChapterTextPainter> {
               ),
             ),
             onWillPop: () async {
+              SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky,
+                  overlays: [SystemUiOverlay.bottom]);
               setState(() {
                 //设置章节
                 widget.pa!.SetChapterIndex(widget.chapterindex);
@@ -415,13 +432,11 @@ class ChapterTextPainterState extends State<ChapterTextPainter> {
       if (widget._sliderchapterValue.toInt() == widget.chapterindex) {
         controller.scrollToIndex(widget.pa!.page,
             preferPosition: AutoScrollPosition.begin);
-      }else{
-        controller.scrollToIndex(0,
-            preferPosition: AutoScrollPosition.begin);
+      } else {
+        controller.scrollToIndex(0, preferPosition: AutoScrollPosition.begin);
       }
     } else {
       WidgetView = Container(
-        
         //width: widget.width,
         //height: ScreenAdaptation.screenHeight,
         key: ValueKey<int>(1),
@@ -433,7 +448,7 @@ class ChapterTextPainterState extends State<ChapterTextPainter> {
               left: 0,
               right: 0,
               child: Container(
-                padding: EdgeInsets.fromLTRB(5, 0, 5, 5),
+                padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
                 child: CustomPaint(
                   painter: ReadText(
                     context,
@@ -442,7 +457,15 @@ class ChapterTextPainterState extends State<ChapterTextPainter> {
                     width: widget.width! - 10,
                     style: widget.style,
                   ),
-                ) /*Text.rich(
+                ) /*CustomPaint(
+                  painter: ReadText(
+                    context,
+                    Title: "${widget.Back_text_title}",
+                    Contont: widget.Back_text!,
+                    width: widget.width! - 10,
+                    style: widget.style,
+                  ),
+                )*/ /*Text.rich(
                   TextSpan(
                     children: [
                       TextSpan(
@@ -470,11 +493,12 @@ class ChapterTextPainterState extends State<ChapterTextPainter> {
             ),
             Positioned(
               width: widget.width,
+              //height: widget.height,
               top: 0,
               bottom: 0,
               left: widget.offset,
               child: Container(
-                padding: EdgeInsets.fromLTRB(5, 0, 5, 5),
+                padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
                 child: CustomPaint(
                   painter: ReadText(
                     context,
@@ -483,7 +507,15 @@ class ChapterTextPainterState extends State<ChapterTextPainter> {
                     width: widget.width! - 10,
                     style: widget.style,
                   ),
-                ) /*Text.rich(
+                ) /*CustomPaint(
+                  painter: ReadText(
+                    context,
+                    Title: "${widget.text_title}",
+                    Contont: widget.text!,
+                    width: widget.width! - 10,
+                    style: widget.style,
+                  ),
+                )*/ /*Text.rich(
                     TextSpan(
                       children: [
                         TextSpan(
@@ -504,7 +536,7 @@ class ChapterTextPainterState extends State<ChapterTextPainter> {
                     boxShadow: [
                       //refer to :https://ninghao.net/video/6443
                       BoxShadow(
-                          color:  Colors.black.withAlpha(50),
+                          color: Colors.black.withAlpha(50),
                           offset: Offset(0.0, 2.0),
                           blurRadius: 2.0,
                           spreadRadius: 1.0),

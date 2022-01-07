@@ -56,8 +56,8 @@ class Paging_algorithm {
     if (ChapterIndex < ChapterList.length) {
       var ad = ChapterTextPainter.CreatePagerData(ArgData(
           ChapterList[ChapterIndex],
-          width!-10,
-          height!-10,
+          width!,
+          height!,
           style,
           lineHeight,
           context));

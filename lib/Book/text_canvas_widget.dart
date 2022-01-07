@@ -15,9 +15,9 @@ import 'package:flutter_application_1/BookType/Txt.dart';
 import 'package:flutter_application_1/utils/GlobalConfig.dart';
 import 'package:flutter_application_1/utils/ThemeChanger.dart';
 import 'package:flutter_application_1/utils/screen_adaptation.dart';
-import 'package:flutter_application_1/utils/scroll_to_index_hmbb.dart';
 import 'package:flutter_charset_detector/flutter_charset_detector.dart';
 import 'package:provider/provider.dart';
+import 'package:scroll_to_index/scroll_to_index.dart';
 
 import 'ChapterTextPainter.dart';
 import '../utils/LibMain.dart';
@@ -42,8 +42,7 @@ class TextCanvas1 extends StatefulWidget {
   double Xoffset = 0.0;
   Dir dir = Dir.none;
 
-  Paging_algorithm?
-      pa; /*= Paging_algorithm(
+   /*= Paging_algorithm(
     text,
     ScreenAdaptation.screenWidth - 20,
     ScreenAdaptation.screenHeight - 20,
@@ -119,6 +118,9 @@ class _TextCanvas1State extends State<TextCanvas1>
   late Animation<double> animation;
   late Animation<double> animation1;
   late Future GetBookFile;
+  Paging_algorithm?
+      pa;
+  //final _pageKey = GlobalKey();//我也不知道这做啥的
   
 
   late AutoScrollController controller;
@@ -127,7 +129,7 @@ class _TextCanvas1State extends State<TextCanvas1>
   Future getPathBook(List<int> Index, BuildContext context) async {
     widget.text = "";
     var str = "";
-    widget.pa = null;
+    pa = null;
     if (widget.bt!.type == TXT.path) {
       print("读取一次txt");
       if (widget.bt!.src == "") {
@@ -180,9 +182,9 @@ class _TextCanvas1State extends State<TextCanvas1>
 
       setState(() {
         widget.text = str;
-        widget.pa = Paging_algorithm(
+        pa = Paging_algorithm(
           str,
-          ScreenAdaptation.screenWidth - 10,
+          ScreenAdaptation.screenWidth,
           ScreenAdaptation.screenHeight,
           TextStyle(
             //height: 1.0,
@@ -342,6 +344,9 @@ class _TextCanvas1State extends State<TextCanvas1>
 
     var Size = MediaQuery.of(context).size;
     log("渲染一次:${widget.dir}");
+    //final pageSize =
+    //    (context.findRenderObject() as RenderBox).size;
+        
 
     widget.TextView = FutureBuilder(
       future: GetBookFile,
@@ -355,14 +360,14 @@ class _TextCanvas1State extends State<TextCanvas1>
               child: Text('加载中...'),
             );
           case ConnectionState.done:
-            print('done:${widget.pa == null}');
-            if (snapshot.hasError || widget.pa == null) {
+            print('done:${pa == null}');
+            if (snapshot.hasError || pa == null) {
               return Center(
                 child: Text('加载失败!!!'),
               );
             }
             log("请求成功");
-            widget.TextBook = widget.pa!.This();
+            widget.TextBook = pa!.This();
 
             var BView = RepaintBoundary(
               child: Listener(
@@ -406,7 +411,7 @@ class _TextCanvas1State extends State<TextCanvas1>
                       //Scaffold.of(context).openDrawer();
                     } else {
                       widget.textKey!.currentState!.SetSwitchView(true);
-                      widget.pa!.sub_page();
+                      pa!.sub_page();
                     }
                   },
                   onPanDown: (detail) {
@@ -447,7 +452,7 @@ class _TextCanvas1State extends State<TextCanvas1>
                           if (Dir.left == Dir.left) {
                             log("messaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaage");
                             //下一页
-                            widget.pa!.add_page();
+                            pa!.add_page();
                           }
                           widget.dir = Dir.none;
                           widget.Xoffset = 0.0;
@@ -561,7 +566,7 @@ class _TextCanvas1State extends State<TextCanvas1>
                                   ScreenAdaptation.screenWidth / 2) {
                             //ScreenAdaptation.screenWidth / 2
                             //下一页
-                            widget.pa!.add_page();
+                            pa!.add_page();
                           }
                         }
                         if (DD == Dir.right) {
@@ -569,7 +574,7 @@ class _TextCanvas1State extends State<TextCanvas1>
                               widget.Xoffset >=
                                   ScreenAdaptation.screenWidth / 2) {
                             //上一页
-                            widget.pa!.sub_page();
+                            pa!.sub_page();
                           }
                         }
                         DD = Dir.none;
@@ -714,11 +719,11 @@ class _TextCanvas1State extends State<TextCanvas1>
               widget.BookView = ChapterTextPainter(
                 key: widget.textKey,
                 text: widget.TextBook,
-                Back_text: widget.pa!.Back(),
-                Next_text: widget.pa!.Next(),
-                text_title: widget.pa!.GetThinTitle(),
-                Next_text_title: widget.pa!.GetNextTitle(),
-                Back_text_title: widget.pa!.GetBackTitle(),
+                Back_text: pa!.Back(),
+                Next_text: pa!.Next(),
+                text_title: pa!.GetThinTitle(),
+                Next_text_title: pa!.GetNextTitle(),
+                Back_text_title: pa!.GetBackTitle(),
                 lineHeight: 27.0,
                 style: TextStyle(
                   fontSize: BookConfig.GetFontSize(),
@@ -729,7 +734,7 @@ class _TextCanvas1State extends State<TextCanvas1>
                 offset: widget.Xoffset,
                 dir: widget.dir,
                 BackgroundColor: BookConfig.GetBackgroundColor(),
-                pa: widget.pa,
+                pa: pa,
                 BView: BView,
                 height: ScreenAdaptation.screenHeight,
               );
@@ -739,11 +744,11 @@ class _TextCanvas1State extends State<TextCanvas1>
                   widget.dir,
                   widget.Xoffset,
                   widget.TextBook,
-                  widget.pa!.Back(),
-                  widget.pa!.Next(),
-                  widget.pa!.GetThinTitle(),
-                  widget.pa!.GetNextTitle(),
-                  widget.pa!.GetBackTitle(),
+                  pa!.Back(),
+                  pa!.Next(),
+                  pa!.GetThinTitle(),
+                  pa!.GetNextTitle(),
+                  pa!.GetBackTitle(),
                   TextStyle(
                     fontSize: BookConfig.GetFontSize(),
                     color: BookConfig.GetFontColor(),
@@ -783,7 +788,7 @@ class _TextCanvas1State extends State<TextCanvas1>
           });*/
 
           controller.scrollToIndex(
-            widget.pa!.ChapterIndex,
+            pa!.ChapterIndex,
             preferPosition: AutoScrollPosition.begin,
           );
         } else {
@@ -835,14 +840,14 @@ class _TextCanvas1State extends State<TextCanvas1>
                 Center(
                     child: ListView.builder(
                   controller: controller,
-                  itemCount: widget.pa == null ? 0 : widget.pa!.Titlenum.length,
+                  itemCount: pa == null ? 0 : pa!.Titlenum.length,
                   itemBuilder: (BuildContext context, int index) {
                     return _wrapScrollTag(
                         index: index,
                         child: GestureDetector(
                           onTap: () {
-                            widget.pa!.SetChapterIndex(index);
-                            widget.pa!.page = 0;
+                            pa!.SetChapterIndex(index);
+                            pa!.page = 0;
 
                             setState(() {
                               //widget.ScrollOffset = widget._controller1.offset;
@@ -860,14 +865,14 @@ class _TextCanvas1State extends State<TextCanvas1>
                             //            width: 0.5, color: Colors.grey))),
                             height: 50,
                             child: ListTile(
-                              selected: widget.pa!.ChapterIndex == index,
+                              selected: pa!.ChapterIndex == index,
                               dense: true,
                               title: Text(
-                                widget.pa!.Titlenum[index].trim(),
+                                pa!.Titlenum[index].trim(),
                                 style: TextStyle(fontSize: 12),
                               ),
                               subtitle: Text(
-                                "字数:${widget.pa!.ChapterList[index].length}",
+                                "字数:${pa!.ChapterList[index].length}",
                                 //maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(fontSize: 9),
@@ -923,9 +928,9 @@ class _TextCanvas1State extends State<TextCanvas1>
                                     fontSize: BookConfig.GetFontSize(),
                                     color: BookConfig.GetFontColor(),
                                   );
-                                  if (widget.pa != null) {
-                                    widget.pa!.ChapterPageList.clear();
-                                    widget.pa!.SetConfig(null, null, aa);
+                                  if (pa != null) {
+                                    pa!.ChapterPageList.clear();
+                                    pa!.SetConfig(null, null, aa);
                                   }
                                 });
                               },
@@ -984,8 +989,9 @@ class _TextCanvas1State extends State<TextCanvas1>
                                   Brightness.dark,
                               title: Text("切换主题"),
                               onChanged: (state) {
-                                GetBookFile = getPathBook(widget.Index!, context);
+                                
                                 setState(() {
+                                  //GetBookFile = getPathBook(widget.Index!, context);
                                   state
                                       ? Provider.of<AppInfoProvider>(context,
                                               listen: false)
@@ -994,6 +1000,7 @@ class _TextCanvas1State extends State<TextCanvas1>
                                               listen: false)
                                           .setTheme(Brightness.dark);
                                 });
+                                
                               },
                             ),
                           ],

@@ -20,25 +20,26 @@ void main() => realRunApp();
 
 void realRunApp() {
   runApp(MyApp());
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+  ));
   //SystemUiOverlayStyle systemUiOverlayStyle = SystemUiOverlayStyle(statusBarColor:Colors.transparent);
   //SystemChrome.setSystemUIOverlayStyle(systemUiOverlayStyle);
   /*SystemChrome.setEnabledSystemUIOverlays(
               [SystemUiOverlay.top]);*/
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent,
-  ));
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-}//ScreenAdaptation.init(context);
+} //ScreenAdaptation.init(context);
 
 Future<void> loadAsync() async {
   bool success = await BookConfig.getInstance();
   print("init-" + success.toString());
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
+    
     //final wordPair = WordPair.random();
     return Container(
       child: MultiProvider(

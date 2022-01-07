@@ -32,15 +32,16 @@ class ScreenAdaptation {
     /*if (mediaQueryData!=null) {
       return;
     }*/
+    //var top = MediaQueryData.fromWindow(window).padding.top;
     mediaQueryData = MediaQuery.of(context);
     G_context = context;
     //width = mediaQueryData.size.width - 20;
     //height = mediaQueryData.size.height - 20;
 
-    statusBarHeight = mediaQueryData!.padding.top;
+    //statusBarHeight = 24;//mediaQueryData!.padding.top;
     ScreenAdaptation.screenHeight =
-        mediaQueryData!.size.height - statusBarHeight-28;
-    ScreenAdaptation.screenWidth = mediaQueryData!.size.width - 0;
+        mediaQueryData!.size.height - statusBarHeight;
+    ScreenAdaptation.screenWidth = mediaQueryData!.size.width;
 //    double size =
 //        mediaQueryData.size.longestSide * mediaQueryData.devicePixelRatio;
   }
