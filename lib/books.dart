@@ -18,6 +18,7 @@ import 'Book/CoverChild.dart';
 import 'Book/File_selector.dart';
 import 'Book/text_canvas.dart';
 import 'Book/text_canvas_widget.dart';
+import 'BookType/Epub.dart';
 import 'BookType/PageAbs.dart';
 import 'Photo/Photo.dart';
 import 'ReadingContainer.dart';
@@ -152,33 +153,41 @@ class _RandomWordsState extends State<RandomWords> {
                     if (result != null && result.length > 0) {
                       showAlertDialog("是否导入目录信息", BackButtonBehavior.none,
                           cancel: () {
-                        BotToast.showText(text: '不导入');
-                        for (var item in result) {
+                        BotToast.showText(text: '不导入目录');
+                        Import_books(result, false);
+                        /*for (var item in result) {
                           var name = item.split("/");
-                          BookConfig.AddBookPathGroup(
-                              name.last, "", TXT.path, item);
+                          if (name.last.endsWith(".txt")) {
+                            BookConfig.AddBookPathGroup(
+                                name.last, "", TXT.path, item, Book.TXT);
+                          } else if (name.last.endsWith(".epub")) {
+                            BookConfig.AddBookPathGroup(
+                                name.last, "", TXT.path, item, Book.EPUB);
+                          }
                         }
                         setState(() {
                           widget.BookShelf = BookConfig.GetBookGroup();
-                        });
+                        });*/
                       }, confirm: () {
                         BotToast.showText(text: '导入');
-                        for (var item in result) {
+                        Import_books(result, true);
+                        /*for (var item in result) {
                           //var path = Uri.decodeComponent(item.identifier!);
                           var temp_list = item.split("/");
                           var name = temp_list.removeLast();
                           //temp_list = temp_list.last.split("/");
                           //log("path:${temp_list}");
-                          BookConfig.AddBookPathGroup(
-                              name, temp_list.last, TXT.path, item);
-                          //var f = File(item.path!);
-                          //var str = f.readAsStringSync();
-                          //log("str:${str}");
-                          //var a = 1;
+                          if (name.endsWith(".txt")) {
+                            BookConfig.AddBookPathGroup(
+                                name, temp_list.last, TXT.path, item, Book.TXT);
+                          } else if (name.endsWith(".epub")) {
+                            BookConfig.AddBookPathGroup(name, temp_list.last,
+                                TXT.path, item, Book.EPUB);
+                          }
                         }
                         setState(() {
                           widget.BookShelf = BookConfig.GetBookGroup();
-                        });
+                        });*/
                       }, backgroundReturn: () {
                         BotToast.showText(text: '不导入');
                       });
@@ -210,6 +219,26 @@ class _RandomWordsState extends State<RandomWords> {
             ),
           ]),
     );
+  }
+
+  void Import_books(Set<String> result, bool IsImport) async {
+    BotToast.showText(text: '导入');
+    for (var item in result) {
+      var temp_list = item.split("/");
+      var name = temp_list.removeLast();
+      var catalogue = IsImport ? temp_list.last : "";
+      if (name.endsWith(".txt")) {
+        BookConfig.AddBookPathGroup(name, catalogue, TXT.path, item, Book.TXT);
+      } else if (name.endsWith(".epub")) {
+        BookConfig.AddBookPathGroup(name, catalogue, TXT.path, item, Book.EPUB);
+      }
+    }
+    Future func = new Future(()async {
+      widget.BookShelf = BookConfig.GetBookGroup();
+    });
+    func.then((value) {
+      setState(() {});
+    });
   }
 
   void _pushSaved() {
@@ -314,12 +343,47 @@ class _RandomWordsState extends State<RandomWords> {
       body = ClipImagePage("", "Image", widget: body, Fontsize: fontsize);
     }
     if (pair is BTXT) {
-      if (pair.backimage == "") {
-        body = ClipImagePage(pair.name, "TXT", Fontsize: fontsize);
-      } else {
-        body = ClipImagePage(pair.name, "TXT",
-            widget: new Image.network(pair.backimage, fit: BoxFit.fill),
-            Fontsize: fontsize);
+      switch (pair.Book_Type) {
+        case Book.TXT:
+          if (pair.backimage_txt == "") {
+            body = ClipImagePage(pair.name, "TXT", Fontsize: fontsize);
+          } else {
+            body = ClipImagePage(pair.name, "TXT",
+                widget: new Image.network(pair.backimage_txt, fit: BoxFit.fill),
+                Fontsize: fontsize);
+          }
+          break;
+        case Book.EPUB:
+          if (pair.backimage_epub == null) {
+            body = ClipImagePage(pair.name, "EPUB", Fontsize: fontsize);
+          } else {
+            body = ClipImagePage(pair.name, "EPUB",
+                widget: FutureBuilder<Image?>(
+                  builder:
+                      (BuildContext context, AsyncSnapshot<Image?> snapshot) {
+                    //snapshot就是_calculation在时间轴上执行过程的状态快照
+                    switch (snapshot.connectionState) {
+                      case ConnectionState.none:
+                        return new Text('start'); //如果_calculation未执行则提示：请点击开始
+                      case ConnectionState.waiting:
+                        return new Text('解析中...'); //如果_calculation正在执行则提示：加载中
+                      case ConnectionState.done:
+                        if (snapshot.hasError) {
+                          return new Text('无封面...');
+                        } else {
+                          return snapshot.data!;
+                        }
+                      default: //如果_calculation执行完毕
+                        return new Text('解析中...');
+                    }
+                  },
+                  future: pair.backimage_epub as Future<
+                      Image?>, // 用户定义的需要异步执行的代码，类型为Future<String>或者null的变量或函数
+                ), // new Image.network(, fit: BoxFit.fill),
+                Fontsize: fontsize);
+          }
+          break;
+        default:
       }
 
       /*body = Center(
@@ -489,15 +553,26 @@ class _RandomWordsState extends State<RandomWords> {
     }
     if (pair is BTXT) {
       log("BTXT被点击");
-      Navigator.of(context).push(
-        //CupertinoPageRoute
-        new MaterialPageRoute<void>(
-          // 新增如下20行代码 ...
-          builder: (BuildContext context) {
-            return SafeArea(child: TextCanvas1(pair as BTXT, Index),) ;
-          },
-        ), // ... 新增代码结束
-      );
+      switch (pair.Book_Type) {
+        case Book.TXT:
+          Navigator.of(context).push(
+            //根据txt类型打开不同的
+            //CupertinoPageRoute
+            new MaterialPageRoute<void>(
+              // 新增如下20行代码 ...
+              builder: (BuildContext context) {
+                return SafeArea(
+                  child: TextCanvas1(pair as BTXT, Index),
+                );
+              },
+            ), // ... 新增代码结束
+          );
+          break;
+        case Book.EPUB:
+          BotToast.showText(text: 'nonononono！！');
+          break;
+        default:
+      }
     }
     if (pair is BGroup) {
       log("BGroup被点击");

@@ -1,12 +1,14 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/BookType/Epub.dart';
 import 'package:flutter_application_1/BookType/Group.dart';
 import 'package:flutter_application_1/BookType/Image.dart';
 import 'package:flutter_application_1/BookType/PageAbs.dart';
 import 'package:flutter_application_1/BookType/Txt.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert' show json;
+import 'package:flutter/material.dart' as m;
 
 class BookConfig {
   static late SharedPreferences preferences;
@@ -14,6 +16,7 @@ class BookConfig {
     preferences = await SharedPreferences.getInstance();
     return true;
   }
+
   static Color GlobalBolor = Colors.brown;
 
   static List<dynamic> BookGroup = [];
@@ -23,13 +26,38 @@ class BookConfig {
     for (var item in list) {
       switch (item["type"]) {
         case "book":
-          bp.add(BTXT(
-              type: item["book_type"] == "path" ? TXT.path : TXT.http,
-              src: item["source"] ?? "",
-              name: item["name"] ?? "",
-              chapterpage: item["chapterpage"] ?? 0,
-              backimage: item["backimage"] ?? "",
-              chapter_index: item["chapter_index"] ?? 0));
+          if (item["Type"] == Book.TXT.name) {
+            bp.add(BTXT(
+                type: item["book_type"] == "path" ? TXT.path : TXT.http,
+                src: item["source"] ?? "",
+                name: item["name"] ?? "",
+                chapterpage: item["chapterpage"] ?? 0,
+                backimage_txt: item["backimage"] ?? "",
+                chapter_index: item["chapter_index"] ?? 0));
+          } else if (item["Type"] == Book.EPUB.name) {
+            /*test1(item["source"]).then((value) {
+              //var aaa = Image.memory(value!.getBytes());
+              bp.add(BTXT(
+                type: item["book_type"] == "path" ? TXT.path : TXT.http,
+                src: item["source"] ?? "",
+                name: item["name"] ?? "",
+                chapterpage: item["chapterpage"] ?? 0,
+                backimage_txt: item["backimage"] ?? "",
+                chapter_index: item["chapter_index"] ?? 0,
+                backimage_epub: new Image.network(pair.backimage_txt, fit: BoxFit.fill),,
+              ));
+            });*/
+            bp.add(BTXT(
+                type: item["book_type"] == "path" ? TXT.path : TXT.http,
+                src: item["source"] ?? "",
+                name: item["name"] ?? "",
+                chapterpage: item["chapterpage"] ?? 0,
+                backimage_txt: item["backimage"] ?? "",
+                chapter_index: item["chapter_index"] ?? 0,
+                backimage_epub: test1(item["source"],item["name"]),
+                Book_Type: Book.EPUB));
+          }
+
           break;
         case "image": //BImage(type: image.http, src: src_img),
           bp.add(BImage(
@@ -55,7 +83,7 @@ class BookConfig {
 
   //BookGroup 添加本地书籍
   static void AddBookPathGroup(
-      String name, String Group_name, TXT type, String src) {
+      String name, String Group_name, TXT type, String src, Book BookType) {
     if (Group_name == "") {
       BookGroup.add({
         "type": "book",
@@ -64,7 +92,8 @@ class BookConfig {
         "source": src,
         "backimage": "",
         "chapterpage": 0,
-        "chapter_index": 0
+        "chapter_index": 0,
+        "Type": BookType.name,
       });
     } else {
       //如果需要创建分组的话
@@ -81,7 +110,8 @@ class BookConfig {
             "source": src,
             "backimage": "",
             "chapterpage": 0,
-            "chapter_index": 0
+            "chapter_index": 0,
+            "Type": BookType.name,
           });
           isnewgroup = true;
         }
@@ -98,7 +128,8 @@ class BookConfig {
               "source": src,
               "backimage": "",
               "chapterpage": 0,
-              "chapter_index": 0
+              "chapter_index": 0,
+              "Type": BookType.name,
             }
           ]
           /*
@@ -142,8 +173,8 @@ class BookConfig {
   //获取书架信息
   static List<BookPage> GetBookGroup() {
     var BookGroupText = preferences.getString("BookGroup");
-    var text = BookGroupText ??"[]";
-        """
+    var text = BookGroupText ?? "[]";
+    """
     [
       {
         "type":"book",
@@ -152,7 +183,8 @@ class BookConfig {
         "source":"",
         "backimage":"http://bookcover.yuewen.com/qdbimg/349573/1031728889/180",
         "chapterpage":0,
-        "chapter_index":0
+        "chapter_index":0,
+        "Type":"TXT",
       },
       {
         "type":"image",
@@ -175,7 +207,8 @@ class BookConfig {
             "source":"",
             "backimage":"http://bookcover.yuewen.com/qdbimg/349573/1031275083/180",
             "chapterpage":0,
-            "chapter_index":0
+            "chapter_index":0,
+            "Type":"TXT",
           },
           {
             "type":"book",
@@ -184,7 +217,8 @@ class BookConfig {
             "source":"",
             "backimage":"http://bookcover.yuewen.com/qdbimg/349573/1031396457/180",
             "chapterpage":0,
-            "chapter_index":0
+            "chapter_index":0,
+            "Type":"TXT",
           }
         ]
       }
@@ -239,12 +273,15 @@ class BookConfig {
       return Color(color);
     }
   }
-  static void Setbrightness(double data){
+
+  static void Setbrightness(double data) {
     preferences.setDouble("brightness", data);
   }
-  static double? Getbrightness(){
+
+  static double? Getbrightness() {
     return preferences.getDouble("brightness");
   }
+
   //设置背景颜色
   static void SetBackgroundColor(Color color) {
     //var hex = '#${color.value.toRadixString(16)}';//转十六进制

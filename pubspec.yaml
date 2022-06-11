@@ -64,6 +64,10 @@ dependencies:
   path_provider: ^2.0.8
   #动态权限申请
   permission_handler: ^8.3.0
+  #epub解析
+  epubx: ^3.0.0
+  #图片解码编码
+  image: ^3.1.0
   #字符串分割
   #string_splitter: ^1.0.0+1
   #事件通知
