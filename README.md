@@ -1,16 +1,17 @@
 # flutter_application_1
 
-A new Flutter project.
+基于flutter开发的本地电子书阅读器
 
-## Getting Started
 
-This project is a starting point for a Flutter application.
+已经实现的功能 
+1. 重写了文件选择器
+2. 重写了排版优化
+3. 书架功能
+4. 图片预览功能
+5. 基于golang的编码转换功能
+6. 夜间模式
+7. 翻页功能
+8. 动态设置阅读设置功能
+9. 翻页预览
+10. 章节跳转翻页优化
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
