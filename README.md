@@ -12,3 +12,9 @@
 9. 翻页预览
 10. 章节跳转翻页优化
 
+![alt img](imglist\20220827095110.jpg)
+![alt img](imglist\20220827095118.jpg)
+![alt img](imglist\20220827095125.jpg)
+![alt img](imglist\20220827095131.jpg)
+![alt img](imglist\20220827095135.jpg)
+![alt img](imglist\20220827095140.jpg)
