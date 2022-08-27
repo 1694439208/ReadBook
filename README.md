@@ -1,7 +1,4 @@
-# flutter_application_1
-
-基于flutter开发的本地电子书阅读器
-
+# 基于flutter开发的本地电子书阅读器
 
 已经实现的功能 
 1. 重写了文件选择器
