@@ -12,6 +12,10 @@
 9. 翻页预览
 10. 章节跳转翻页优化
 
+# 为了项目更好发展，可以支持一下
+
+> # ![](https://github.com/1694439208/BluePrint/raw/master/image/pay.png)
+
 ![alt img](imglist/20220827095110.jpg)
 ![alt img](imglist/20220827095118.jpg)
 ![alt img](imglist/20220827095125.jpg)
